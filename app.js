@@ -344,7 +344,16 @@ function update() {
 
         const mapping = gamepadMappings[gamepad.index];
         const currentState = {
-            buttons: gamepad.buttons.map(b => b.pressed),
+            buttons: gamepad.buttons.map((b, i) => {
+                // For triggers (LT/RT), use their value for more sensitivity,
+                // as `pressed` can have a high activation threshold.
+                const buttonName = mapping.BUTTON_MAP[i];
+                if (buttonName === 'LT' || buttonName === 'RT') {
+                    return b.value > 0;
+                }
+                // For all other buttons, the `pressed` property is fine.
+                return b.pressed;
+            }),
             axes: gamepad.axes.slice()
         };
         const prevState = previousState[gamepad.index];
