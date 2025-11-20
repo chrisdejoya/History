@@ -94,7 +94,7 @@ function flushInputBuffer() {
         }
     });
     inputContainer.prepend(inputElement);
-    if (inputContainer.children.length > MAX_INPUT_HISTORY) {
+    while (inputContainer.children.length > 20) {
         inputContainer.removeChild(inputContainer.lastChild);
     }
     inputBuffer = []; // Clear the buffer

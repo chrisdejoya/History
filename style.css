@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column-reverse; /* Display newest on top */
     align-items: flex-start;
-    gap: 8px;
+    gap: 0px;
 }
 
 /* Styling for each input item */
@@ -27,7 +27,7 @@ body {
     animation: fadeIn 0.15s ease-in-out;/* Apply the fade-in animation */
     width: 100%; /* Take up full width */
     display: flex;
-    align-items: center;
+    align-items: baseline;
     padding: 4px; /* Reduce padding */
 }
 
@@ -42,7 +42,6 @@ body {
     justify-content: center;
     border: 1px solid #000
 }
-
 
 .input-separator {
     font-family: 'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -88,6 +87,12 @@ body {
         transform: translateX(0);
     }
 }
+
+.input-separator {
+    display: none;
+}
+
+
 
 @font-face {
     font-family: 'Swiss 721 Bold Extended BT';
