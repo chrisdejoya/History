@@ -184,6 +184,20 @@ function addInputToDisplay(inputs) {
     }, CONJUNCTION_WINDOW_MS);
 }
 // --- Input Processing ---
+
+/**
+ * Sorts an array of inputs to prioritize directional inputs and neutrals.
+ * @param {string[]} inputs The array of input strings.
+ * @returns {string[]} The sorted array.
+ */
+function sortInputs(inputs) {
+    const directional = inputs.filter(input => DIRECTIONAL_INPUTS.has(input));
+    const nonDirectional = inputs.filter(input => !DIRECTIONAL_INPUTS.has(input));
+    return [...directional, ...nonDirectional];
+}
+
+
+
 /**
  * Calculates the direction vector from D-pad inputs.
  * @param {boolean[]} buttons - The array of button states.
@@ -419,6 +433,9 @@ function update() {
 
         // 4. Display inputs
         if (frameInputs.length > 0) {
+            // Sort the inputs to prioritize directions and neutrals
+            frameInputs = sortInputs(frameInputs);
+
             addInputToDisplay(frameInputs);
         }
 
