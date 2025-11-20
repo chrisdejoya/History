@@ -201,6 +201,7 @@ function checkForDash(gamepadIndex, currentDirection) {
         const isWithinTime = (last.time - first.time) <= DASH_WINDOW_MS;
 
         if (isDashPattern && isWithinTime) {
+            directionHistory[gamepadIndex] = []; // Clear history to prevent pre-input
             return DASH_MAP[last.dir.num]; // Return dash symbol e.g., "→→"
         }
     }
