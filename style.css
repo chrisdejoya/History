@@ -160,7 +160,7 @@ body {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: auto 50px 1fr 1fr auto;
+    grid-template-columns: auto 50px 1fr 1.5fr auto auto;
     gap: 10px 12px;
     align-items: center;
     margin-bottom: 15px;
@@ -171,6 +171,8 @@ body {
     font-size: 0.8em;
     text-transform: uppercase;
 }
+.settings-grid .grid-header:nth-child(5) { grid-column: 5; } /* Swatch Header */
+.settings-grid .grid-header:nth-child(6) { grid-column: 6; } /* Font Header */
 
 
 .settings-grid label {
@@ -209,18 +211,42 @@ body {
     margin-bottom: 20px;
 }
 
-.color-input-wrapper {
+.color-input-container {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-wrap: wrap; /* Allow wrapping on very small screens */
+}
+
+.rgb-input-group {
+    display: flex;
+    gap: 3px;
+}
+
+.rgb-input {
+    width: 40px; /* Compact width for RGB values */
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Hide arrows on number inputs for a cleaner look */
+.rgb-input::-webkit-outer-spin-button,
+.rgb-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.hex-input {
+    font-family: monospace;
+    width: 75px;
 }
 
 .color-input-swatch {
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     border: 1px solid #555;
     border-radius: 4px;
     flex-shrink: 0;
+    grid-column: 5; /* Explicitly place in the 5th column */
 }
 
 .button-preview {
@@ -228,6 +254,7 @@ body {
     height: 32px;
     border-radius: 50%;
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 

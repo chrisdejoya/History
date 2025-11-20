@@ -57,6 +57,20 @@ function getContrastYIQ(hexcolor){
     return (yiq >= 128) ? 'black' : 'white';
 }
 
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+function rgbToHex(r, g, b) {
+    const toHex = c => ('0' + parseInt(c, 10).toString(16)).slice(-2);
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
 function updateIconsFromSettings() {
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
@@ -136,23 +150,49 @@ function populateSettingsPanel() {
         labelInput.dataset.key = key;
         labelInput.dataset.prop = 'label';
 
-        const colorWrapper = document.createElement('div');
-        colorWrapper.className = 'color-input-wrapper';
+        const colorContainer = document.createElement('div');
+        colorContainer.className = 'color-input-container';
 
-        const colorInput = document.createElement('input');
-        colorInput.type = 'text';
-        colorInput.value = setting.color;
-        colorInput.dataset.key = key;
-        colorInput.dataset.prop = 'color';
-        // Basic pattern for a 3 or 6 digit hex code
-        colorInput.pattern = '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$';
+        const rgbContainer = document.createElement('div');
+        rgbContainer.className = 'rgb-input-group';
+
+        const initialRgb = hexToRgb(setting.color) || { r: 0, g: 0, b: 0 };
+
+        ['r', 'g', 'b'].forEach(comp => {
+            const numInput = document.createElement('input');
+            numInput.type = 'number';
+            numInput.min = 0;
+            numInput.max = 255;
+            numInput.value = initialRgb[comp];
+            numInput.dataset.key = key;
+            numInput.dataset.prop = 'color-rgb';
+            numInput.dataset.comp = comp;
+            numInput.className = 'rgb-input';
+            rgbContainer.appendChild(numInput);
+        });
+
+        const hexInput = document.createElement('input');
+        hexInput.type = 'text';
+        hexInput.value = setting.color;
+        hexInput.dataset.key = key;
+        hexInput.dataset.prop = 'color-hex';
+        hexInput.className = 'hex-input';
+        hexInput.pattern = '^#([A-Fa-f0-9]{6})$';
 
         const colorSwatch = document.createElement('div');
         colorSwatch.className = 'color-input-swatch';
         colorSwatch.style.backgroundColor = setting.color;
 
-        // Link swatch to its input for easy updating
-        colorInput.swatchRef = colorSwatch;
+        // Store references for easy access
+        setting.rgbInputRefs = {
+            r: rgbContainer.children[0],
+            g: rgbContainer.children[1],
+            b: rgbContainer.children[2]
+        };
+        setting.hexInputRef = hexInput;
+        setting.swatchRef = colorSwatch;
+
+        colorContainer.append(rgbContainer, hexInput);
 
         const textColorSelect = document.createElement('select');
         textColorSelect.dataset.key = key;
@@ -161,9 +201,7 @@ function populateSettingsPanel() {
         textColorSelect.value = setting.textColor || 'black'; // Default to black
 
 
-        colorWrapper.append(colorInput, colorSwatch);
-
-        grid.append(buttonPreview, nameLabel, labelInput, colorWrapper, textColorSelect);
+        grid.append(buttonPreview, nameLabel, labelInput, colorContainer, colorSwatch, textColorSelect);
     }
     settingsForm.appendChild(buttonSettingsHeader);
     settingsForm.appendChild(grid);
@@ -634,29 +672,74 @@ window.addEventListener("load", () => {
         }
     });
 
+    settingsForm.addEventListener('wheel', (e) => {
+        const { key, prop, comp } = e.target.dataset;
+        if (key && prop === 'color-rgb') {
+            e.preventDefault();
+            const setting = buttonSettings[key];
+            const input = e.target;
+            let value = parseInt(input.value, 10);
+
+            if (e.deltaY < 0) { // Scrolling up
+                value = Math.min(255, value + 10);
+            } else { // Scrolling down
+                value = Math.max(0, value - 10);
+            }
+            input.value = value;
+
+            // Manually trigger an input event to update everything
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, { passive: false });
+
     settingsForm.addEventListener('input', (e) => {
         const { key, prop } = e.target.dataset;
         if (key && prop) {
-            const value = e.target.value;
-            buttonSettings[key][prop] = value;
+            const setting = buttonSettings[key];
 
-            // If a color was changed, update the swatch and check if it's a valid hex
-            if (prop === 'color') {
-                const value = e.target.value;
-                if (e.target.swatchRef) {
-                    e.target.swatchRef.style.backgroundColor = value;
-                }
-                // Only regenerate icons and save if the color is valid
-                if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)) {
+            if (prop === 'color-rgb') {
+                // Ensure value is within bounds when typing
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = 0; // Handle empty input
+                val = Math.max(0, Math.min(255, val));
+                // Only update if the parsed value is different, prevents cursor jumping on blur
+                if (e.target.value !== String(val)) e.target.value = val;
+
+                const r = parseInt(setting.rgbInputRefs.r.value, 10);
+                const g = parseInt(setting.rgbInputRefs.g.value, 10);
+                const b = parseInt(setting.rgbInputRefs.b.value, 10);
+
+                if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+                    const newHex = rgbToHex(r, g, b);
+                    setting.color = newHex;
+                    setting.hexInputRef.value = newHex; // Update hex input
+                    setting.swatchRef.style.backgroundColor = newHex;
+                    setting.previewRef.innerHTML = generateButtonIconSVG(setting.label, newHex, setting.textColor);
                     updateIconsFromSettings();
                     saveSettings();
-                    buttonSettings[key].previewRef.innerHTML = generateButtonIconSVG(buttonSettings[key].label, buttonSettings[key].color, buttonSettings[key].textColor);
+                }
+            } else if (prop === 'color-hex') {
+                const hexValue = e.target.value;
+                if (/^#([A-Fa-f0-9]{6})$/.test(hexValue)) {
+                    const rgb = hexToRgb(hexValue);
+                    if (rgb) {
+                        setting.color = hexValue;
+                        // Update RGB inputs
+                        setting.rgbInputRefs.r.value = rgb.r;
+                        setting.rgbInputRefs.g.value = rgb.g;
+                        setting.rgbInputRefs.b.value = rgb.b;
+                        // Update swatch and preview
+                        setting.swatchRef.style.backgroundColor = hexValue;
+                        setting.previewRef.innerHTML = generateButtonIconSVG(setting.label, hexValue, setting.textColor);
+                        updateIconsFromSettings();
+                        saveSettings();
+                    }
                 }
             } else { // For label and textColor changes
-                buttonSettings[key][prop] = value;
+                setting[prop] = e.target.value;
                 updateIconsFromSettings();
                 saveSettings();
-                buttonSettings[key].previewRef.innerHTML = generateButtonIconSVG(buttonSettings[key].label, buttonSettings[key].color, buttonSettings[key].textColor);
+                setting.previewRef.innerHTML = generateButtonIconSVG(setting.label, setting.color, setting.textColor);
             }
         }
     });
