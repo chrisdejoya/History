@@ -51,24 +51,24 @@ export const ICONS = {
     '↙': '<svg viewBox="0 0 32 32" style="transform: rotate(225deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
     '←': '<svg viewBox="0 0 32 32" style="transform: rotate(270deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
     '↖': '<svg viewBox="0 0 32 32" style="transform: rotate(315deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
-    '⭐': '<svg viewBox="0 0 32 32"><path d="M16 23l-8 5 2-9-7-6h9l3-8 3 8h9l-7 6 2 9z"></path></svg>',
+    '⭐': '<svg viewBox="0 0 32 32"><path style="transform-origin: center; transform: scale(0.7);" d="M16 0 L20.5 11.5 L32 12.5 L23 20.5 L26.5 32 L16 25 L5.5 32 L9 20.5 L0 12.5 L11.5 11.5 Z"></path></svg>',
     // Dashes & Motions
     '→→': '<svg viewBox="0 0 32 32"><path d="M8 8l8 8-8 8V8zm8 0l8 8-8 8V8z"></path></svg>',
     '←←': '<svg viewBox="0 0 32 32"><path d="M24 8l-8 8 8 8V8zm-8 0l-8 8 8 8V8z"></path></svg>',
     '⬊': '<svg viewBox="0 0 32 32"><path d="M 5 5 C 5 18 14 27 27 27 L 27 21 C 17 21 11 15 11 5 Z"></path><path d="M 21 21 L 27 27 L 21 33 Z" style="transform: translate(0, -4px)"></path></svg>',
     '⬋': '<svg viewBox="0 0 32 32" style="transform: scaleX(-1);"><path d="M 5 5 C 5 18 14 27 27 27 L 27 21 C 17 21 11 15 11 5 Z"></path><path d="M 21 21 L 27 27 L 21 33 Z" style="transform: translate(0, -4px)"></path></svg>',
     // Buttons
-    'A': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#32CD32"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">A</text></svg>',
-    'B': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#DC143C"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">B</text></svg>',
-    'X': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#4169E1"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">X</text></svg>',
+    'A': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#32CD32"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">A</text></svg>',
+    'B': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#DC143C"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">B</text></svg>',
+    'X': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#4169E1"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">X</text></svg>',
     'Y': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#FFD700"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">Y</text></svg>',
     'LB': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LB</text></svg>',
     'RB': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RB</text></svg>',
     'LT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#696969"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LT</text></svg>',
     'RT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#696969"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RT</text></svg>',
-    'LS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">LS</text></svg>',
-    'RS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">RS</text></svg>',
-    'N': '<svg viewBox="0 0 32 32"><path d="M16 23l-8 5 2-9-7-6h9l3-8 3 8h9l-7 6 2 9z" fill="gray"></path></svg>'
+    'LS': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LS</text></svg>',
+    'RS': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RS</text></svg>',
+    'N': '<svg viewBox="0 0 32 32"><path style="transform-origin: center; transform: scale(0.7);" d="M16 0 L20.5 11.5 L32 12.5 L23 20.5 L26.5 32 L16 25 L5.5 32 L9 20.5 L0 12.5 L11.5 11.5 Z" fill="gray"></path></svg>'
 };
 
 // --- Dash & Motion Logic ---

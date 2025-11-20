@@ -29,7 +29,7 @@ body {
     display: flex;
     align-items: center; /* Changed from baseline to center */
     padding: 4px; /* Reduce padding */
-    gap: 8px; /* Add space between frame counter and input groups */
+    gap: 12px; /* Add space between frame counter and input groups */
 }
 
 .input-glyph {
@@ -58,12 +58,10 @@ body {
 .input-item svg {
     width: 38px;
     height: 38px;
-    fill: #EFEFEF;
-    /* Existing display: flex may conflict with SVG internal alignment */
-    /* Remove or adjust if it causes issues with SVG content */
-    /* display: flex;
+    fill: #EFEFEF;    
+    display: flex;
     align-items: center;
-    justify-content: center; */
+    justify-content: center;
 }
 
 /* Special case for dash chevrons to make them look good in a circle */
