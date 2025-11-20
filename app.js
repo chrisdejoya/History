@@ -375,16 +375,30 @@ function update() {
             }
         }
 
-        // 2. Check for new button presses
+        // 2. Check for new button presses and releases
         for (let i = 0; i < currentState.buttons.length; i++) {
             if (currentState.buttons[i] && !prevState.buttons[i]) {
                 hasNewButtonPress = true;
-                break;
             }
         }
 
-        // A dash counts as a new input event
-        const hasNewInput = hasNewButtonPress || (directionChanged && currentDirection.num !== NEUTRAL_DIRECTION_NUM) || detectedDash || detectedMotion;
+        // Check for button releases, but only if no new buttons were pressed in the same frame.
+        // This prevents showing 'N' when rolling from one button to another.
+        let hasNewButtonRelease = false;
+        if (!hasNewButtonPress) {
+            for (let i = 0; i < currentState.buttons.length; i++) {
+                // We only care about non-directional buttons for this logic
+                const buttonName = mapping.BUTTON_MAP[i];
+                if (buttonName && !['Up', 'Down', 'Left', 'Right'].includes(buttonName)) {
+                    if (!currentState.buttons[i] && prevState.buttons[i]) {
+                        hasNewButtonRelease = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        const hasNewInput = hasNewButtonPress || directionChanged || detectedDash || detectedMotion || hasNewButtonRelease;
 
         // 3. Construct the full input string
         if (hasNewInput) {
@@ -406,9 +420,18 @@ function update() {
             } else if (detectedDash) {
                 primaryInputSymbol = detectedDash;
                 directionHistory[gamepad.index] = [];
-            } else if (directionChanged && currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
-                // If direction changed and it's not neutral, and no motion/dash was detected
-                primaryInputSymbol = currentDirection.sym;
+            } else if (directionChanged) {
+                if (currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
+                    // If direction changed and it's not neutral, and no motion/dash was detected
+                    primaryInputSymbol = currentDirection.sym;
+                } else if (appSettings.showNeutrals && !hasNewButtonPress) {
+                    // Direction changed to neutral, and no buttons were pressed in the same frame
+                    primaryInputSymbol = 'N';
+                }
+            } else if (hasNewButtonRelease && !directionChanged && !hasNewButtonPress) {
+                if (appSettings.showNeutrals) {
+                    primaryInputSymbol = 'N';
+                }
             }
 
             // If a button was pressed while a direction was held (but not changed),
