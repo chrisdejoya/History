@@ -83,17 +83,22 @@ export const ICONS = {
     '⬊': '<svg viewBox="0 0 32 32"><path d="M 5 5 C 5 18 14 27 27 27 L 27 21 C 17 21 11 15 11 5 Z"></path><path d="M 21 21 L 27 27 L 21 33 Z" style="transform: translate(0, -4px)"></path></svg>',
     '⬋': '<svg viewBox="0 0 32 32" style="transform: scaleX(-1);"><path d="M 5 5 C 5 18 14 27 27 27 L 27 21 C 17 21 11 15 11 5 Z"></path><path d="M 21 21 L 27 27 L 21 33 Z" style="transform: translate(0, -4px)"></path></svg>',
     // Buttons
-    'A': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ff4350"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">A</text></svg>',
-    'B': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ffc842"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">B</text></svg>', // Note: This was a duplicate of 'A' in the original file, I've corrected it.
-    'X': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#36d5ff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">X</text></svg>',
-    'Y': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ff6eff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">Y</text></svg>',
-    'LB': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#298aff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LB</text></svg>',
-    'RB': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ff28ac"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RB</text></svg>',
-    'LT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#a6dd43"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LT</text></svg>',
-    'RT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#a6dd43"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RT</text></svg>',
-    'LS': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LS</text></svg>',
-    'RS': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#808080"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">RS</text></svg>',
+    // Button icons are now generated dynamically. See BUTTON_DEFAULTS.
     'N': '<svg viewBox="0 0 32 32"><path style="transform-origin: center; transform: scale(0.7);" d="M16 0 L20.5 11.5 L32 12.5 L23 20.5 L26.5 32 L16 25 L5.5 32 L9 20.5 L0 12.5 L11.5 11.5 Z" fill="gray"></path></svg>'
+};
+
+// Default settings for customizable buttons. These will be used if no user settings are stored.
+export const BUTTON_DEFAULTS = {
+    'A':  { label: 'A',  color: '#ff4350' },
+    'B':  { label: 'B',  color: '#ffc842' },
+    'X':  { label: 'X',  color: '#36d5ff' },
+    'Y':  { label: 'Y',  color: '#ff6eff' },
+    'LB': { label: 'LB', color: '#298aff' },
+    'RB': { label: 'RB', color: '#ff28ac' },
+    'LT': { label: 'LT', color: '#a6dd43' },
+    'RT': { label: 'RT', color: '#a6dd43' },
+    'LS': { label: 'LS', color: '#808080' },
+    'RS': { label: 'RS', color: '#808080' },
 };
 
 // --- Dash & Motion Logic ---

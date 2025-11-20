@@ -12,12 +12,17 @@ import {
     ICONS,
     DASH_WINDOW_MS,
     DASH_MAP,
+    BUTTON_DEFAULTS,
     MOTION_MAP,
     MOTION_SEQUENCES,
     DIRECTIONAL_INPUTS
 } from './config.js';
 
 const statusDiv = document.getElementById('status');
+const settingsPanel = document.getElementById('settings-panel');
+const settingsForm = document.getElementById('settings-form');
+const resetButton = document.getElementById('reset-settings-btn');
+
 const inputContainer = document.getElementById('input-container');
 const gamepads = {};
 const gamepadMappings = {}; // Store the detected mapping for each gamepad
@@ -25,6 +30,89 @@ const previousState = {};
 const directionHistory = {}; // Store direction history per gamepad
 let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
 let bufferTimeout = null; 
+let buttonSettings = {};
+
+// --- Settings Panel Logic ---
+
+function toggleSettingsPanel() {
+    settingsPanel.classList.toggle('hidden');
+}
+
+function generateButtonIconSVG(label, color) {
+    const fontSize = label.length > 1 ? 16 : 20; // Smaller font for longer labels like 'LB'
+    // Use a contrasting text color (black or white) based on the button color's brightness
+    const textColor = getContrastYIQ(color);
+    return `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="${color}"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="${textColor}">${label}</text></svg>`;
+}
+
+function getContrastYIQ(hexcolor){
+    hexcolor = hexcolor.replace("#", "");
+    const r = parseInt(hexcolor.substr(0,2),16);
+    const g = parseInt(hexcolor.substr(2,2),16);
+    const b = parseInt(hexcolor.substr(4,2),16);
+    const yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return (yiq >= 128) ? 'black' : 'white';
+}
+
+function updateIconsFromSettings() {
+    for (const key in buttonSettings) {
+        const setting = buttonSettings[key];
+        ICONS[key] = generateButtonIconSVG(setting.label, setting.color);
+    }
+}
+
+function saveSettings() {
+    localStorage.setItem('buttonSettings', JSON.stringify(buttonSettings));
+}
+
+function populateSettingsPanel() {
+    settingsForm.innerHTML = ''; // Clear existing
+    const grid = document.createElement('div');
+    grid.className = 'settings-grid';
+    grid.innerHTML = '<label>Button</label><label>Label</label><label>Color</label>'; // Header
+
+    for (const key in buttonSettings) {
+        const setting = buttonSettings[key];
+
+        const nameLabel = document.createElement('label');
+        nameLabel.textContent = key;
+
+        const labelInput = document.createElement('input');
+        labelInput.type = 'text';
+        labelInput.value = setting.label;
+        labelInput.dataset.key = key;
+        labelInput.dataset.prop = 'label';
+
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = setting.color;
+        colorInput.dataset.key = key;
+        colorInput.dataset.prop = 'color';
+
+        grid.append(nameLabel, labelInput, colorInput);
+    }
+    settingsForm.appendChild(grid);
+}
+
+function loadSettings() {
+    const savedSettings = localStorage.getItem('buttonSettings');
+    if (savedSettings) {
+        buttonSettings = JSON.parse(savedSettings);
+    } else {
+        // Deep copy defaults if no settings are saved
+        buttonSettings = JSON.parse(JSON.stringify(BUTTON_DEFAULTS));
+    }
+    updateIconsFromSettings();
+    populateSettingsPanel();
+}
+
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all button customizations to their defaults?')) {
+        localStorage.removeItem('buttonSettings');
+        loadSettings(); // Reload the default settings
+    }
+}
+
 
 function handleGamepadConnected(event) {
     console.log('Gamepad connected:', event.gamepad.id);
@@ -454,6 +542,27 @@ function gameLoop() {
 
 // Initial check for already connected gamepads
 window.addEventListener("load", () => {
+    loadSettings(); // Load user settings or defaults
+
+    // --- Event Listeners ---
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            toggleSettingsPanel();
+        }
+    });
+
+    settingsForm.addEventListener('input', (e) => {
+        const { key, prop } = e.target.dataset;
+        if (key && prop) {
+            buttonSettings[key][prop] = e.target.value;
+            updateIconsFromSettings();
+            saveSettings();
+        }
+    });
+
+    resetButton.addEventListener('click', resetSettings);
+
     for (const gamepad of navigator.getGamepads()) {
         if (gamepad) {
             handleGamepadConnected({ gamepad: gamepad });
