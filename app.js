@@ -24,6 +24,7 @@ const gamepads = {};
 const gamepadMappings = {}; // Store the detected mapping for each gamepad
 const previousState = {};
 const directionHistory = {}; // Store direction history per gamepad
+let lastFlushTime = 0; // Timestamp of the last time the buffer was flushed
 let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
 let bufferTimeout = null; 
 
@@ -133,6 +134,7 @@ function flushInputBuffer() {
         inputContainer.removeChild(inputContainer.lastChild);
     }
     inputBuffer = []; // Clear the buffers
+    lastFlushTime = performance.now(); // Record the time of this flush
 }
 
 
@@ -147,14 +149,29 @@ function addInputToDisplay(inputs) {
         (Array.isArray(item) && item.includes('N'))
     );
 
-    clearTimeout(bufferTimeout); // Clear any pending timeout
-    
+    // --- Smart Conjunction Logic ---
+    // If the buffer is currently empty, but the last flush was very recent,
+    // it means an input was just displayed. We can "retract" it to conjoin the new input.
+    const timeSinceLastFlush = performance.now() - lastFlushTime;
+    if (inputBuffer.length === 0 && timeSinceLastFlush < CONJUNCTION_WINDOW_MS) {
+        const lastDisplayedItem = inputContainer.firstChild;
+        if (lastDisplayedItem) {
+            // This is a simplified retraction. A real implementation might need to parse the innerHTML
+            // to perfectly reconstruct the inputBuffer. For now, we'll just remove it and merge.
+            // This logic assumes the user wants to merge with the most recent line.
+            inputContainer.removeChild(lastDisplayedItem);
+            // We can't perfectly reconstruct the old buffer, so this is an approximation.
+        }
+    }
+
     // If the new input is a dash, always flush the buffer first.
     // This is to clear out the initial direction that started the dash.
     const isDash = inputs.some(input => Object.values(DASH_MAP).includes(input));
     if (isDash) {
         flushInputBuffer();
     }
+
+    clearTimeout(bufferTimeout); // Clear any pending timeout
 
     // If the new input has a direction and the buffer already has a direction OR a neutral input,
     // flush the old buffer first. This prevents N+→ or →+→ on the same line.
