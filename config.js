@@ -61,7 +61,7 @@ export const ICONS = {
     'RT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#696969"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold" fill="black" stroke="black" stroke-width="1.2">RT</text></svg>',
     'LS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">LS</text></svg>',
     'RS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">RS</text></svg>',
-    'N': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="black"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="white">N</text></svg>',
+    'N': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="lightgray"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">N</text></svg>',
 };
 
 // --- Dash & Motion Logic ---
