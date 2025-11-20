@@ -19,7 +19,7 @@ const inputContainer = document.getElementById('input-container');
 const gamepads = {};
 const previousState = {};
 const directionHistory = {}; // Store direction history per gamepad
-let inputBuffer = [];
+let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
 let bufferTimeout = null; 
 
 function handleGamepadConnected(event) {
@@ -49,22 +49,50 @@ function flushInputBuffer() {
     if (inputBuffer.length === 0) return;
 
     const inputElement = document.createElement('div');
-    inputElement.className = 'input-item';
+    inputElement.className = 'input-item'; // This is the flex container with gap: 8px
 
-    inputBuffer.forEach((input, index) => {
-        const glyphWrapper = document.createElement('div');
-        glyphWrapper.className = 'input-glyph';
-        glyphWrapper.innerHTML = ICONS[input] || '';
-        inputElement.appendChild(glyphWrapper);
+    inputBuffer.forEach((item, index) => {
+        // Create a sub-container for each 'item' (either single or simultaneous group)
+        const itemGroupContainer = document.createElement('span'); // Use span to allow inline display
+        itemGroupContainer.style.display = 'flex'; // Make it a flex container itself
+        itemGroupContainer.style.alignItems = 'center'; // Align glyphs and separators vertically
+        // No gap here, we'll manage spacing manually for simultaneous
 
+        // Handle single input (string)
+        if (typeof item === 'string') {
+            const glyphWrapper = document.createElement('div');
+            glyphWrapper.className = 'input-glyph';
+            glyphWrapper.innerHTML = ICONS[item] || '';
+            itemGroupContainer.appendChild(glyphWrapper);
+        }
+        // Handle simultaneous inputs (array of strings)
+        else if (Array.isArray(item)) {
+            item.forEach((subItem, subIndex) => {
+                const glyphWrapper = document.createElement('div');
+                glyphWrapper.className = 'input-glyph';
+                glyphWrapper.innerHTML = ICONS[subItem] || '';
+                itemGroupContainer.appendChild(glyphWrapper);
+
+                // Add a tight separator between simultaneous inputs
+                if (subIndex < item.length - 1) {
+                    const separator = document.createElement('span');
+                    separator.className = 'input-simultaneous-separator'; // New class for styling
+                    separator.textContent = '+';
+                    itemGroupContainer.appendChild(separator);
+                }
+            });
+        }
+
+        inputElement.appendChild(itemGroupContainer); // Append the sub-container to the main inputElement
+
+        // Add a wide separator between different itemGroupContainers (sequential groups)
         if (index < inputBuffer.length - 1) {
             const separator = document.createElement('span');
-            separator.className = 'input-separator';
+            separator.className = 'input-separator'; // Existing class for styling
             separator.textContent = '+';
             inputElement.appendChild(separator);
         }
     });
-
     inputContainer.prepend(inputElement);
     if (inputContainer.children.length > MAX_INPUT_HISTORY) {
         inputContainer.removeChild(inputContainer.lastChild);
@@ -72,18 +100,28 @@ function flushInputBuffer() {
     inputBuffer = []; // Clear the buffer
 }
 
-function addInputToDisplay(inputs) { // Expects an array of input names/symbols
+function addInputToDisplay(inputs) {
     const hasNewDirection = inputs.some(input => DIRECTIONAL_INPUTS.has(input));
-    const bufferHasDirection = inputBuffer.some(input => DIRECTIONAL_INPUTS.has(input));
-
-    // If the new input has a direction and the buffer already has one, flush the old buffer first.
-    if (hasNewDirection && bufferHasDirection) {
-        clearTimeout(bufferTimeout);
-        flushInputBuffer();
-    }
+    const bufferHasDirection = inputBuffer.some(item =>
+        (typeof item === 'string' && DIRECTIONAL_INPUTS.has(item)) ||
+        (Array.isArray(item) && item.some(subItem => DIRECTIONAL_INPUTS.has(subItem)))
+    );
 
     clearTimeout(bufferTimeout); // Clear any pending timeout
-    inputBuffer = [...new Set([...inputBuffer, ...inputs])]; // Merge new inputs
+
+    // If the new input has a direction and the buffer already has one, flush the old buffer first.
+    // This ensures that sequential directional inputs are displayed as separate items.
+    if (hasNewDirection && bufferHasDirection) flushInputBuffer();
+
+    // Add new inputs to the buffer
+    if (inputs.length > 0) {
+        const uniqueInputs = [...new Set(inputs)]; // Ensure uniqueness within the current frame's inputs
+        if (uniqueInputs.length === 1) {
+            inputBuffer.push(uniqueInputs[0]); // Add as a single string
+        } else {
+            inputBuffer.push(uniqueInputs); // Add as an array for simultaneous inputs
+        }
+    }
 
     // Set a new timeout to process the buffer
     bufferTimeout = setTimeout(() => {
@@ -275,7 +313,6 @@ function update() {
             }
 
             let primaryInputSymbol = null;
-
             if (ENABLE_MOTION_INPUTS && detectedMotion) {
                 // The actual display depends on whether a button was pressed with it.
                 primaryInputSymbol = detectedMotion.sym;
@@ -294,13 +331,11 @@ function update() {
                 primaryInputSymbol = currentDirection.sym;
             }
 
+            // Always add the directional input first, if it exists
             if (primaryInputSymbol) {
-                // Only add motion symbol if a button was pressed (to complete the special move)
-                if (!(ENABLE_MOTION_INPUTS && detectedMotion && !hasNewButtonPress)) {
-                    frameInputs.push(primaryInputSymbol);
-                }
+                frameInputs.push(primaryInputSymbol);
             }
-
+            
             frameInputs.push(...newlyPressedButtons);
         }
 
