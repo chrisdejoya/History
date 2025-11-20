@@ -168,7 +168,7 @@ body {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: auto 40px 1fr 1.7fr auto 1fr;
+    grid-template-columns: auto 30px 0.8fr 1.2fr auto auto;
     gap: 10px 12px;
     align-items: center;
     margin-bottom: 15px;
@@ -181,6 +181,7 @@ body {
 }
 
 .settings-grid label {
+    text-align: center;
     font-weight: 600; /* Semibold */
 }
 
@@ -219,7 +220,7 @@ body {
 .color-input-container {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: wrap; /* Allow wrapping on very small screens */
 }
 
@@ -229,7 +230,7 @@ body {
 }
 
 .rgb-input {
-    width: 38px; /* Compact width for RGB values */
+    width: 34px; /* Compact width for RGB values */
     -moz-appearance: textfield; /* Firefox */
 }
 
@@ -242,7 +243,7 @@ body {
 
 .hex-input {
     font-family: monospace;
-    width: 70px;
+    width: 65px;
     text-align: center;
 }
 

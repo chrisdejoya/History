@@ -115,8 +115,8 @@ function populateSettingsPanel() {
     grid.innerHTML = `
         <div class="grid-header">Preview</div>
         <div class="grid-header">Btn</div>
-        <div class="grid-header">Label</div>
-        <div class="grid-header">Color</div>
+        <div class="grid-header" style="grid-column: 3;">Label</div>
+        <div class="grid-header" style="grid-column: 4;">Color</div>
         <div class="grid-header" style="grid-column: 6;">Font</div>
     `;
 
