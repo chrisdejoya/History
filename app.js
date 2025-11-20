@@ -1,14 +1,17 @@
 import {
     AXIS_DEADZONE,
-    MAX_INPUT_HISTORY,
     ENABLE_MOTION_INPUTS,
+    MAX_DISPLAY_LINES,
+    SIMULTANEOUS_INPUT_SEPARATOR,
+    TARGET_FPS,
+    FRAME_INTERVAL,
     CONJUNCTION_WINDOW_MS,
+    NEUTRAL_DIRECTION_NUM,
     BUTTON_MAP,
     DIRECTION_MAP,
     ICONS,
     DASH_WINDOW_MS,
     DASH_MAP,
-    MOTION_WINDOW_MS,
     MOTION_MAP,
     MOTION_SEQUENCES,
     DIRECTIONAL_INPUTS
@@ -86,7 +89,7 @@ function flushInputBuffer() {
                 if (subIndex < item.length - 1) {
                     const separator = document.createElement('span');
                     separator.className = 'input-separator';
-                    separator.textContent = '+';
+                    separator.textContent = SIMULTANEOUS_INPUT_SEPARATOR;
                     itemGroupContainer.appendChild(separator);
                 }
             });
@@ -98,13 +101,13 @@ function flushInputBuffer() {
         if (index < inputBuffer.length - 1) {
             const separator = document.createElement('span');
             separator.className = 'input-separator'; // Existing class for styling
-            separator.textContent = '+';
+            separator.textContent = SIMULTANEOUS_INPUT_SEPARATOR;
             inputElement.appendChild(separator);
         }
     });
 
     inputContainer.prepend(inputElement);
-    while (inputContainer.children.length > 20) {
+    while (inputContainer.children.length > MAX_DISPLAY_LINES) {
         inputContainer.removeChild(inputContainer.lastChild);
     }
     inputBuffer = []; // Clear the buffers
@@ -193,7 +196,7 @@ function checkForDash(gamepadIndex, currentDirection) {
     if (history.length === 3) {
         const [first, middle, last] = history;
         const isDashPattern = last.dir.num === first.dir.num && // Same direction
-                              middle.dir.num === 5 &&             // Neutral in the middle
+                              middle.dir.num === NEUTRAL_DIRECTION_NUM &&             // Neutral in the middle
                               DASH_MAP[last.dir.num];             // It's a dashable direction (left/right)
         const isWithinTime = (last.time - first.time) <= DASH_WINDOW_MS;
 
@@ -226,13 +229,12 @@ function checkForMotion(gamepadIndex) {
 
     // Create a clean sequence of unique directions from recent history
     const uniqueSequence = [];
-    const timeFilteredHistory = history.filter(item => (now - item.time) <= MOTION_WINDOW_MS);
-
-    if (timeFilteredHistory.length < 2) return null;
+    // The motion window is implicitly handled by the direction history length now.
+    if (history.length < 2) return null;
 
     // Create a sequence of unique numpad directions, e.g., [2, 2, 3, 6, 6] -> [2, 3, 6]
     let lastNum = -1;
-    for(const item of timeFilteredHistory) {
+    for(const item of history) {
         if (item.dir.num !== lastNum && item.dir.num !== 5) { // Ignore neutral and duplicates
             uniqueSequence.push(item.dir.num);
             lastNum = item.dir.num;
@@ -314,7 +316,7 @@ function update() {
         }
 
         // A dash counts as a new input event
-        const hasNewInput = hasNewButtonPress || (directionChanged && currentDirection.num !== 5) || detectedDash || detectedMotion;
+        const hasNewInput = hasNewButtonPress || (directionChanged && currentDirection.num !== NEUTRAL_DIRECTION_NUM) || detectedDash || detectedMotion;
 
         // 3. Construct the full input string
         if (hasNewInput) {
@@ -336,14 +338,14 @@ function update() {
             } else if (detectedDash) {
                 primaryInputSymbol = detectedDash;
                 directionHistory[gamepad.index] = [];
-            } else if (directionChanged && currentDirection.num !== 5) {
+            } else if (directionChanged && currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
                 // If direction changed and it's not neutral, and no motion/dash was detected
                 primaryInputSymbol = currentDirection.sym;
             }
 
             // If a button was pressed while a direction was held (but not changed),
             // add the held direction to the output.
-            if (hasNewButtonPress && !primaryInputSymbol && currentDirection.num !== 5) {
+            if (hasNewButtonPress && !primaryInputSymbol && currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
                 primaryInputSymbol = currentDirection.sym;
             }
 
@@ -379,16 +381,14 @@ function update() {
 }
 
 let lastFrameTime = 0;
-const targetFPS = 60;
-const frameInterval = 1000 / targetFPS;
 
 function gameLoop() {
   const now = performance.now();
   const elapsed = now - lastFrameTime;
 
-  if (elapsed > frameInterval) {
+  if (elapsed > FRAME_INTERVAL) {
     update();
-    lastFrameTime = now - (elapsed % frameInterval);
+    lastFrameTime = now - (elapsed % FRAME_INTERVAL);
   }
 
   requestAnimationFrame(gameLoop);

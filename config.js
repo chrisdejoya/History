@@ -1,15 +1,22 @@
 // --- Core Gameplay Configuration ---
 export const AXIS_DEADZONE = 0.7;
-export const MAX_INPUT_HISTORY = 12;
 export const ENABLE_MOTION_INPUTS = false; // Set to true to recognize quarter-circles, etc.
 
+// --- Display Configuration ---
+export const MAX_DISPLAY_LINES = 20; // The maximum number of input lines to show on screen.
+export const SIMULTANEOUS_INPUT_SEPARATOR = '+'; // Character to display between simultaneous inputs.
+
 // --- Timing Configuration ---
+export const TARGET_FPS = 60; // The target frames per second for the game loop.
+export const FRAME_INTERVAL = 1000 / TARGET_FPS;
 export const CONJUNCTION_WINDOW_MS = 50; // How long to wait for subsequent inputs to group them together (in ms)
 export const DASH_WINDOW_MS = 300; // Max time in ms between taps for a dash
 export const MOTION_WINDOW_MS = 400; // Max time for a motion
 export const MAX_DIRECTION_HISTORY = 8; // We need a longer history for motions
 
 // --- Mappings ---
+
+export const NEUTRAL_DIRECTION_NUM = 5; // The numpad number representing a neutral direction.
 
 // Mapping from button index to Xbox button names
 export const BUTTON_MAP = {
