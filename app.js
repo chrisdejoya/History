@@ -76,7 +76,7 @@ function flushInputBuffer() {
                 // Add a tight separator between simultaneous inputs
                 if (subIndex < item.length - 1) {
                     const separator = document.createElement('span');
-                    separator.className = 'input-simultaneous-separator'; // New class for styling
+                    separator.className = 'input-separator';
                     separator.textContent = '+';
                     itemGroupContainer.appendChild(separator);
                 }
