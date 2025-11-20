@@ -43,6 +43,7 @@ body {
     border: 1px solid #000
 }
 
+
 .input-separator {
     font-family: 'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     flex: none; /* Don't grow/shrink */
