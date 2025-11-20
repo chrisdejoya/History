@@ -92,21 +92,34 @@ function addInputToDisplay(inputs) { // Expects an array of input names/symbols
 }
 
 // --- Input Processing ---
+/**
+ * Calculates the direction vector from D-pad inputs.
+ * @param {boolean[]} buttons - The array of button states.
+ * @returns {{dx: number, dy: number}} The direction vector.
+ */
+function getDpadVector(buttons) {
+    const dx = (buttons[15] ? 1 : 0) - (buttons[14] ? 1 : 0); // Right - Left
+    const dy = (buttons[13] ? 1 : 0) - (buttons[12] ? 1 : 0); // Down - Up
+    return { dx, dy };
+}
+
+/**
+ * Calculates the direction vector from analog stick inputs.
+ * @param {number[]} axes - The array of axis states.
+ * @returns {{dx: number, dy: number}} The direction vector.
+ */
+function getStickVector(axes) {
+    const dx = Math.abs(axes[0]) > AXIS_DEADZONE ? Math.sign(axes[0]) : 0;
+    const dy = Math.abs(axes[1]) > AXIS_DEADZONE ? Math.sign(axes[1]) : 0;
+    return { dx, dy };
+}
+
 function getDirection(state) {
-    const { buttons, axes } = state;
-
-    // D-pad check (buttons 12-15) - D-pad takes priority
-    const dpad_dx = (buttons[15] ? 1 : 0) - (buttons[14] ? 1 : 0); // Right - Left
-    const dpad_dy = (buttons[13] ? 1 : 0) - (buttons[12] ? 1 : 0); // Down - Up
-
-    if (dpad_dx !== 0 || dpad_dy !== 0) {
-        return DIRECTION_MAP[`${dpad_dx},${dpad_dy}`];
-    }
-
-    // Analog stick check (if D-pad is neutral)
-    const stick_dx = Math.abs(axes[0]) > AXIS_DEADZONE ? Math.sign(axes[0]) : 0;
-    const stick_dy = Math.abs(axes[1]) > AXIS_DEADZONE ? Math.sign(axes[1]) : 0;
-
+    const { dx: dpad_dx, dy: dpad_dy } = getDpadVector(state.buttons);
+    // D-pad takes priority. If it's not neutral, use its direction.
+    if (dpad_dx !== 0 || dpad_dy !== 0) return DIRECTION_MAP[`${dpad_dx},${dpad_dy}`];
+    // Otherwise, use the analog stick's direction.
+    const { dx: stick_dx, dy: stick_dy } = getStickVector(state.axes);
     return DIRECTION_MAP[`${stick_dx},${stick_dy}`];
 }
 
