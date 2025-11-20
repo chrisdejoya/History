@@ -13,11 +13,11 @@ body {
 /* Container for the input history */
 #input-container {
     position: fixed;
-    top: 25%;
+    top: 20px;
     left: 20px;
     width: 300px;
     display: flex;
-    flex-direction: column-reverse; /* Display newest on top */
+    flex-direction: column; /* Display newest on top, pushing down */
     align-items: flex-start;
     gap: 0px;
 }

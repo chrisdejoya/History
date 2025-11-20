@@ -346,8 +346,15 @@ function update() {
         }
 
         // If only buttons were pressed, and no direction was present, show the neutral indicator
+        const bufferHasNeutral = inputBuffer.some(item =>
+            (typeof item === 'string' && item === 'N') ||
+            (Array.isArray(item) && item.includes('N'))
+        );
         if (hasNewButtonPress && !primaryInputSymbol && !directionChanged && !detectedDash && !detectedMotion) {
-            frameInputs.unshift('N'); // Add neutral indicator at the beginning
+            // Only add 'N' if the buffer doesn't already have one.
+            if (!bufferHasNeutral) {
+                frameInputs.unshift('N'); // Add neutral indicator at the beginning
+            }
         }
 
 
@@ -361,11 +368,23 @@ function update() {
     }
 }
 
+let lastFrameTime = 0;
+const targetFPS = 60;
+const frameInterval = 1000 / targetFPS;
 
 function gameLoop() {
+  const now = performance.now();
+  const elapsed = now - lastFrameTime;
+
+  if (elapsed > frameInterval) {
     update();
-    requestAnimationFrame(gameLoop);
+    lastFrameTime = now - (elapsed % frameInterval);
+  }
+
+  requestAnimationFrame(gameLoop);
 }
+
+
 
 // Initial check for already connected gamepads
 window.addEventListener("load", () => {
