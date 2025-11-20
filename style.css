@@ -131,11 +131,11 @@ body {
 }
 
 .settings-content h3 {
-    margin-top: 10px;
+    margin-top: 0;
     margin-bottom: 10px;
     text-align: left;
     text-transform: uppercase;
-    font-size: 1.1em;
+    font-size: 1em;
     color: #ccc;
 }
 
@@ -143,7 +143,7 @@ body {
     border: 0;
     border-top: 1px solid #444;
     margin: 15px 0;
-    width: 90%;
+    width: 100%;
 }
 .settings-content h2 {
     margin-top: 0;
@@ -151,6 +151,14 @@ body {
     text-align: center;
     text-transform: uppercase;
 }
+.settings-toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
 .settings-content div > label[for="show-neutrals-toggle"] {
     margin-right: 8px;
 }
@@ -160,7 +168,7 @@ body {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: auto 50px 1fr 1.5fr auto 1fr;
+    grid-template-columns: auto 40px 1fr 1.7fr auto 1fr;
     gap: 10px 12px;
     align-items: center;
     margin-bottom: 15px;
@@ -171,8 +179,6 @@ body {
     font-size: 0.8em;
     text-transform: uppercase;
 }
-.settings-grid .grid-header:nth-child(5) { grid-column: 5; } /* Swatch Header */
-
 
 .settings-grid label {
     font-weight: 600; /* Semibold */
@@ -213,7 +219,7 @@ body {
 .color-input-container {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     flex-wrap: wrap; /* Allow wrapping on very small screens */
 }
 
@@ -223,7 +229,7 @@ body {
 }
 
 .rgb-input {
-    width: 40px; /* Compact width for RGB values */
+    width: 38px; /* Compact width for RGB values */
     -moz-appearance: textfield; /* Firefox */
 }
 
@@ -236,8 +242,10 @@ body {
 
 .hex-input {
     font-family: monospace;
-    width: 75px;
+    width: 70px;
+    text-align: center;
 }
+
 
 .color-input-swatch {
     width: 34px;
@@ -261,6 +269,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start; /* Align toggle to the left */
+    gap: 8px;
 }
 
 .text-color-toggle {
@@ -295,7 +304,7 @@ body {
 }
 
 .text-color-label {
-    margin-left: 6px;
+    margin-left: 0;
 }
 .settings-footer {
     display: flex;

@@ -97,39 +97,32 @@ function populateSettingsPanel() {
     showNeutralsToggle.type = 'checkbox';
     showNeutralsToggle.id = 'show-neutrals-toggle';
     showNeutralsToggle.checked = appSettings.showNeutrals;
+    showNeutralsToggle.className = 'text-color-toggle'; // Reuse the existing toggle style
     showNeutralsToggle.addEventListener('change', (e) => {
         appSettings.showNeutrals = e.target.checked;
-        // Force a redraw
         flushInputBuffer();
-
         saveSettings();
     });
 
     const generalSettingsHeader = document.createElement('h3');
     generalSettingsHeader.textContent = 'General';
-    generalSettingsHeader.style.gridColumn = '1 / -1'; // Span all columns
-    generalSettingsHeader.style.marginTop = '0px';
 
     const showNeutralsContainer = document.createElement('div');
-    showNeutralsContainer.style.display = 'flex';
-    showNeutralsContainer.style.alignItems = 'center';
+    showNeutralsContainer.className = 'settings-toggle-container';
+    showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
+
     // Create a styled header row
     grid.innerHTML = `
         <div class="grid-header">Preview</div>
         <div class="grid-header">Btn</div>
         <div class="grid-header">Label</div>
         <div class="grid-header">Color</div>
-        <div class="grid-header">Font</div>
+        <div class="grid-header" style="grid-column: 6;">Font</div>
     `;
 
-    showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
     settingsForm.appendChild(generalSettingsHeader);
     settingsForm.appendChild(showNeutralsContainer);
     settingsForm.appendChild(document.createElement('hr'));
-
-    const buttonSettingsHeader = document.createElement('h3');
-    buttonSettingsHeader.textContent = 'Buttons';
-    buttonSettingsHeader.style.gridColumn = '1 / -1';
 
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
@@ -211,14 +204,13 @@ function populateSettingsPanel() {
 
         const textColorContainer = document.createElement('div');
         textColorContainer.className = 'text-color-container';
-        textColorContainer.append(textColorToggle, textColorLabel);
+        textColorContainer.append(textColorLabel, textColorToggle);
 
         setting.textColorToggleRef = textColorToggle; // Save ref for updates
         setting.textColorLabelRef = textColorLabel;
 
         grid.append(buttonPreview, nameLabel, labelInput, colorContainer, colorSwatch, textColorContainer);
     }
-    settingsForm.appendChild(buttonSettingsHeader);
     settingsForm.appendChild(grid);
 }
         
@@ -753,6 +745,7 @@ window.addEventListener("load", () => {
             } else { // For label and textColor changes
                 const value = e.target.type === 'checkbox' ? (e.target.checked ? 'white' : 'black') : e.target.value;
                 setting[prop] = value;
+
 
                 updateIconsFromSettings();
                 saveSettings();
