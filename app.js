@@ -106,12 +106,18 @@ function addInputToDisplay(inputs) {
         (typeof item === 'string' && DIRECTIONAL_INPUTS.has(item)) ||
         (Array.isArray(item) && item.some(subItem => DIRECTIONAL_INPUTS.has(subItem)))
     );
+    const bufferHasNeutral = inputBuffer.some(item =>
+        (typeof item === 'string' && item === 'N') ||
+        (Array.isArray(item) && item.includes('N'))
+    );
 
     clearTimeout(bufferTimeout); // Clear any pending timeout
 
-    // If the new input has a direction and the buffer already has one, flush the old buffer first.
-    // This ensures that sequential directional inputs are displayed as separate items.
-    if (hasNewDirection && bufferHasDirection) flushInputBuffer();
+    // If the new input has a direction and the buffer already has a direction OR a neutral input,
+    // flush the old buffer first. This prevents N+→ or →+→ on the same line.
+    if (hasNewDirection && (bufferHasDirection || bufferHasNeutral)) {
+        flushInputBuffer();
+    }
 
     // Add new inputs to the buffer
     if (inputs.length > 0) {

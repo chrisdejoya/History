@@ -28,7 +28,7 @@ body {
     width: 100%; /* Take up full width */
     display: flex;
     align-items: center;
-    padding: 6px /* A little space around the content */
+    padding: 4px; /* Reduce padding */
 }
 
 .input-glyph {
