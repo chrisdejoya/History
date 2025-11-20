@@ -59,6 +59,11 @@ body {
     width: 38px;
     height: 38px;
     fill: #EFEFEF;
+    /* Existing display: flex may conflict with SVG internal alignment */
+    /* Remove or adjust if it causes issues with SVG content */
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
 }
 
 /* Special case for dash chevrons to make them look good in a circle */
