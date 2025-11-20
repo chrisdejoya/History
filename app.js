@@ -133,10 +133,16 @@ function addInputToDisplay(inputs) {
         flushInputBuffer();
     }
 
+    // Check if a directional input or neutral input is already in the buffer
+   const hasExistingDirectional = inputBuffer.some(item =>
+        (typeof item === 'string' && DIRECTIONAL_INPUTS.has(item)) ||
+        (Array.isArray(item) && item.some(subItem => DIRECTIONAL_INPUTS.has(subItem)))
+    );
+
     // Add new inputs to the buffer
     if (inputs.length > 0) {
         const uniqueInputs = [...new Set(inputs)]; // Ensure uniqueness within the current frame's inputs
-        if (uniqueInputs.length === 1) {
+        if (uniqueInputs.length === 1 && !(hasExistingDirectional && DIRECTIONAL_INPUTS.has(uniqueInputs[0]))) {
             inputBuffer.push(uniqueInputs[0]); // Add as a single string
         } else {
             inputBuffer.push(uniqueInputs); // Add as an array for simultaneous inputs
@@ -358,16 +364,9 @@ function update() {
             frameInputs.push(...newlyPressedButtons);
         }
 
-        // If only buttons were pressed, and no direction was present, show the neutral indicator
-        const bufferHasNeutral = inputBuffer.some(item =>
-            (typeof item === 'string' && item === 'N') ||
-            (Array.isArray(item) && item.includes('N'))
-        );
-        if (hasNewButtonPress && !primaryInputSymbol && !directionChanged && !detectedDash && !detectedMotion) {
-            // Only add 'N' if the buffer doesn't already have one.
-            if (!bufferHasNeutral) {
-                frameInputs.unshift('N'); // Add neutral indicator at the beginning
-            }
+        // If buttons were pressed without a new direction, dash, or motion, prepend Neutral.
+        if (hasNewButtonPress && !primaryInputSymbol) {
+             frameInputs.unshift('N');
         }
 
 

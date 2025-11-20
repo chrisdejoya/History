@@ -45,10 +45,13 @@ body {
 
 .frame-count {
     margin-right: 8px;
-    min-width: 50px;
+    min-width: 40px;
     text-align: right;
-    font-size: 0.8em;Adjust font size for better alignment */
-    color: #FFF; /* Ensure visibility */    
+    font-size: 0.7em; /* Adjust font size for better alignment */
+    color: #EFEFEF; /* Ensure visibility */
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 .input-item svg {

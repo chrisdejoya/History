@@ -68,7 +68,7 @@ export const ICONS = {
     'RT': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#696969"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold" fill="black">RT</text></svg>',
     'LS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">LS</text></svg>',
     'RS': '<svg viewBox="0 0 32 32"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold">RS</text></svg>',
-    'N': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="lightgray"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">N</text></svg>',
+    'N': '<svg viewBox="0 0 32 32"><path d="M16 23l-8 5 2-9-7-6h9l3-8 3 8h9l-7 6 2 9z" fill="gray"></path></svg>',
 };
 
 // --- Dash & Motion Logic ---
@@ -94,3 +94,4 @@ export const MOTION_SEQUENCES = {
 export const DIRECTIONAL_INPUTS = new Set(
     Object.values(DIRECTION_MAP).map(d => d.sym).concat(Object.values(DASH_MAP), Object.values(MOTION_MAP).map(m => m.sym))
 );
+DIRECTIONAL_INPUTS.add('N'); // Explicitly add 'N' as a directional input
