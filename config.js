@@ -89,16 +89,16 @@ export const ICONS = {
 
 // Default settings for customizable buttons. These will be used if no user settings are stored.
 export const BUTTON_DEFAULTS = {
-    'A':  { label: 'A',  color: '#ff4350' },
-    'B':  { label: 'B',  color: '#ffc842' },
-    'X':  { label: 'X',  color: '#36d5ff' },
-    'Y':  { label: 'Y',  color: '#ff6eff' },
-    'LB': { label: 'LB', color: '#298aff' },
-    'RB': { label: 'RB', color: '#ff28ac' },
-    'LT': { label: 'LT', color: '#a6dd43' },
-    'RT': { label: 'RT', color: '#a6dd43' },
-    'LS': { label: 'LS', color: '#808080' },
-    'RS': { label: 'RS', color: '#808080' },
+    'A':  { label: 'A',  color: '#ff4350', textColor: 'black' },
+    'B':  { label: 'B',  color: '#ffc842', textColor: 'black' },
+    'X':  { label: 'X',  color: '#36d5ff', textColor: 'black' },
+    'Y':  { label: 'Y',  color: '#ff6eff', textColor: 'black' },
+    'LB': { label: 'LB', color: '#298aff', textColor: 'black' },
+    'RB': { label: 'RB', color: '#ff28ac', textColor: 'black' },
+    'LT': { label: 'LT', color: '#a6dd43', textColor: 'black' },
+    'RT': { label: 'RT', color: '#a6dd43', textColor: 'black' },
+    'LS': { label: 'LS', color: '#808080', textColor: 'black' },
+    'RS': { label: 'RS', color: '#808080', textColor: 'black' },
 };
 
 // --- Dash & Motion Logic ---

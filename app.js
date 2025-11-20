@@ -38,11 +38,10 @@ function toggleSettingsPanel() {
     settingsPanel.classList.toggle('hidden');
 }
 
-function generateButtonIconSVG(label, color) {
-    const fontSize = label.length > 1 ? 16 : 20; // Smaller font for longer labels like 'LB'
-    // Use a contrasting text color (black or white) based on the button color's brightness
-    const textColor = getContrastYIQ(color);
-    return `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="${color}"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="${textColor}">${label}</text></svg>`;
+function generateButtonIconSVG(label, color, textColor) {
+    const fontSize = label.length > 1 ? 16 : 20;
+    const font = `'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', sans-serif`;
+    return `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="${color}"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-family="${font}" font-size="${fontSize}" font-weight="bold" fill="${textColor}">${label}</text></svg>`;
 }
 
 function getContrastYIQ(hexcolor){
@@ -57,7 +56,7 @@ function getContrastYIQ(hexcolor){
 function updateIconsFromSettings() {
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
-        ICONS[key] = generateButtonIconSVG(setting.label, setting.color);
+        ICONS[key] = generateButtonIconSVG(setting.label, setting.color, setting.textColor);
     }
 }
 
@@ -69,31 +68,67 @@ function populateSettingsPanel() {
     settingsForm.innerHTML = ''; // Clear existing
     const grid = document.createElement('div');
     grid.className = 'settings-grid';
-    grid.innerHTML = '<label>Button</label><label>Label</label><label>Color</label>'; // Header
+
+    // Create a styled header row
+    grid.innerHTML = `
+        <div class="grid-header">Preview</div>
+        <div class="grid-header">Btn</div>
+        <div class="grid-header">Label</div>
+        <div class="grid-header">Color</div>
+        <div class="grid-header">Font</div>
+    `;
 
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
 
         const nameLabel = document.createElement('label');
-        nameLabel.textContent = key;
+        nameLabel.textContent = key
 
+        const buttonPreview = document.createElement('div');
+        buttonPreview.className = 'button-preview';
+        buttonPreview.innerHTML = generateButtonIconSVG(setting.label, setting.color, setting.textColor);
+
+        // Store a reference to the preview for live updates
+        setting.previewRef = buttonPreview;
+        
         const labelInput = document.createElement('input');
         labelInput.type = 'text';
         labelInput.value = setting.label;
         labelInput.dataset.key = key;
         labelInput.dataset.prop = 'label';
 
+        const colorWrapper = document.createElement('div');
+        colorWrapper.className = 'color-input-wrapper';
+
         const colorInput = document.createElement('input');
-        colorInput.type = 'color';
+        colorInput.type = 'text';
         colorInput.value = setting.color;
         colorInput.dataset.key = key;
         colorInput.dataset.prop = 'color';
+        // Basic pattern for a 3 or 6 digit hex code
+        colorInput.pattern = '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$';
 
-        grid.append(nameLabel, labelInput, colorInput);
+        const colorSwatch = document.createElement('div');
+        colorSwatch.className = 'color-input-swatch';
+        colorSwatch.style.backgroundColor = setting.color;
+
+        // Link swatch to its input for easy updating
+        colorInput.swatchRef = colorSwatch;
+
+        const textColorSelect = document.createElement('select');
+        textColorSelect.dataset.key = key;
+        textColorSelect.dataset.prop = 'textColor';
+        textColorSelect.innerHTML = '<option value="black">Black</option><option value="white">White</option>';
+        textColorSelect.value = setting.textColor || 'black'; // Default to black
+
+
+        colorWrapper.append(colorInput, colorSwatch);
+
+        grid.append(buttonPreview, nameLabel, labelInput, colorWrapper, textColorSelect);
     }
     settingsForm.appendChild(grid);
 }
-
+        
 function loadSettings() {
     const savedSettings = localStorage.getItem('buttonSettings');
     if (savedSettings) {
@@ -101,6 +136,7 @@ function loadSettings() {
     } else {
         // Deep copy defaults if no settings are saved
         buttonSettings = JSON.parse(JSON.stringify(BUTTON_DEFAULTS));
+        for (const key in buttonSettings) buttonSettings[key].textColor = 'black'; // Default
     }
     updateIconsFromSettings();
     populateSettingsPanel();
@@ -112,7 +148,6 @@ function resetSettings() {
         loadSettings(); // Reload the default settings
     }
 }
-
 
 function handleGamepadConnected(event) {
     console.log('Gamepad connected:', event.gamepad.id);
@@ -555,9 +590,27 @@ window.addEventListener("load", () => {
     settingsForm.addEventListener('input', (e) => {
         const { key, prop } = e.target.dataset;
         if (key && prop) {
-            buttonSettings[key][prop] = e.target.value;
-            updateIconsFromSettings();
-            saveSettings();
+            const value = e.target.value;
+            buttonSettings[key][prop] = value;
+
+            // If a color was changed, update the swatch and check if it's a valid hex
+            if (prop === 'color') {
+                const value = e.target.value;
+                if (e.target.swatchRef) {
+                    e.target.swatchRef.style.backgroundColor = value;
+                }
+                // Only regenerate icons and save if the color is valid
+                if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)) {
+                    updateIconsFromSettings();
+                    saveSettings();
+                    buttonSettings[key].previewRef.innerHTML = generateButtonIconSVG(buttonSettings[key].label, buttonSettings[key].color, buttonSettings[key].textColor);
+                }
+            } else { // For label and textColor changes
+                buttonSettings[key][prop] = value;
+                updateIconsFromSettings();
+                saveSettings();
+                buttonSettings[key].previewRef.innerHTML = generateButtonIconSVG(buttonSettings[key].label, buttonSettings[key].color, buttonSettings[key].textColor);
+            }
         }
     });
 
@@ -570,6 +623,7 @@ window.addEventListener("load", () => {
     }
     gameLoop();
 });
+
 
 window.addEventListener("gamepadconnected", handleGamepadConnected);
 window.addEventListener("gamepaddisconnected", handleGamepadDisconnected);

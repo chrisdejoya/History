@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@600&display=swap" rel="stylesheet">
     <title>Input History</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,11 +23,12 @@
     <div id="settings-panel" class="hidden">
         <div class="settings-content">
             <h2>Customize Buttons</h2>
-            <p>Press 'Tab' to close. Changes are saved automatically.</p>
+            <p class="settings-description">Press 'Tab' to close. Changes are saved automatically.</p>
+
             <div id="settings-form">
                 <!-- Settings will be dynamically generated here -->
             </div>
-             <div class="settings-actions">
+             <div class="settings-footer">
                 <button id="reset-settings-btn">Reset to Defaults</button>
             </div>
         </div>
