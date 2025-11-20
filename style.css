@@ -51,7 +51,7 @@ body {
     font-weight: 900; /* Make the plus sign itself thicker */
     /* Create a thicker, more solid outline */
     text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -1px 0 0 #000, 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000;
-    margin: 0 8px; /* Add consistent horizontal spacing */
+    margin: 0 4px; /* Make horizontal spacing more compact */
 }
 
 .input-item svg {
