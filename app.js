@@ -194,14 +194,29 @@ function populateSettingsPanel() {
 
         colorContainer.append(rgbContainer, hexInput);
 
-        const textColorSelect = document.createElement('select');
-        textColorSelect.dataset.key = key;
-        textColorSelect.dataset.prop = 'textColor';
-        textColorSelect.innerHTML = '<option value="black">Black</option><option value="white">White</option>';
-        textColorSelect.value = setting.textColor || 'black'; // Default to black
+        const textColorToggle = document.createElement('input');
+        textColorToggle.type = 'checkbox';
+        textColorToggle.id = `text-color-toggle-${key}`;
+        textColorToggle.className = 'text-color-toggle';
+        textColorToggle.dataset.key = key;
+        textColorToggle.dataset.prop = 'textColor';
+        textColorToggle.checked = setting.textColor === 'white'; // White is "on"
 
+        const textColorLabel = document.createElement('label');
+        textColorLabel.htmlFor = `text-color-toggle-${key}`;
+        textColorLabel.className = 'text-color-label';
 
-        grid.append(buttonPreview, nameLabel, labelInput, colorContainer, colorSwatch, textColorSelect);
+        // Initial label based on setting
+        textColorLabel.textContent = setting.textColor === 'white' ? 'White' : 'Black';
+
+        const textColorContainer = document.createElement('div');
+        textColorContainer.className = 'text-color-container';
+        textColorContainer.append(textColorToggle, textColorLabel);
+
+        setting.textColorToggleRef = textColorToggle; // Save ref for updates
+        setting.textColorLabelRef = textColorLabel;
+
+        grid.append(buttonPreview, nameLabel, labelInput, colorContainer, colorSwatch, textColorContainer);
     }
     settingsForm.appendChild(buttonSettingsHeader);
     settingsForm.appendChild(grid);
@@ -736,10 +751,15 @@ window.addEventListener("load", () => {
                     }
                 }
             } else { // For label and textColor changes
-                setting[prop] = e.target.value;
+                const value = e.target.type === 'checkbox' ? (e.target.checked ? 'white' : 'black') : e.target.value;
+                setting[prop] = value;
+
                 updateIconsFromSettings();
                 saveSettings();
                 setting.previewRef.innerHTML = generateButtonIconSVG(setting.label, setting.color, setting.textColor);
+                if (prop === 'textColor' && setting.textColorLabelRef) {
+                    setting.textColorLabelRef.textContent = value === 'white' ? 'White' : 'Black';
+                }
             }
         }
     });

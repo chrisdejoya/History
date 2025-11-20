@@ -160,7 +160,7 @@ body {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: auto 50px 1fr 1.5fr auto auto;
+    grid-template-columns: auto 50px 1fr 1.5fr auto 1fr;
     gap: 10px 12px;
     align-items: center;
     margin-bottom: 15px;
@@ -172,7 +172,6 @@ body {
     text-transform: uppercase;
 }
 .settings-grid .grid-header:nth-child(5) { grid-column: 5; } /* Swatch Header */
-.settings-grid .grid-header:nth-child(6) { grid-column: 6; } /* Font Header */
 
 
 .settings-grid label {
@@ -258,6 +257,46 @@ body {
     justify-content: center;
 }
 
+.text-color-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align toggle to the left */
+}
+
+.text-color-toggle {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.text-color-toggle:checked {
+    background-color: #777;
+}
+
+.text-color-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: #eee;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s;
+}
+
+.text-color-toggle:checked::before {
+    left: 22px;
+}
+
+.text-color-label {
+    margin-left: 6px;
+}
 .settings-footer {
     display: flex;
     justify-content: flex-end;
