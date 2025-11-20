@@ -93,10 +93,10 @@ export const BUTTON_DEFAULTS = {
     'B':  { label: 'B',  color: '#ffc842', textColor: 'black' },
     'X':  { label: 'X',  color: '#36d5ff', textColor: 'black' },
     'Y':  { label: 'Y',  color: '#ff6eff', textColor: 'black' },
-    'LB': { label: 'LB', color: '#298aff', textColor: 'black' },
-    'RB': { label: 'RB', color: '#ff28ac', textColor: 'black' },
-    'LT': { label: 'LT', color: '#a6dd43', textColor: 'black' },
-    'RT': { label: 'RT', color: '#a6dd43', textColor: 'black' },
+    'LB': { label: 'LB', color: '#298aff', textColor: 'black' }, // Left Bumper
+    'RB': { label: 'RB', color: '#ff28ac', textColor: 'black' }, // Right Bumper
+    'LT': { label: 'LT', color: '#a6dd43', textColor: 'black' }, // Left Trigger
+    'RT': { label: 'RT', color: '#a6dd43', textColor: 'black' }, // Right Trigger
     'LS': { label: 'LS', color: '#808080', textColor: 'black' },
     'RS': { label: 'RS', color: '#808080', textColor: 'black' },
 };
