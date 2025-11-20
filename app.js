@@ -14,7 +14,8 @@ import {
     MOTION_MAP,
     MOTION_SEQUENCES,
     DIRECTIONAL_INPUTS,
-    DIRECTION_MAP
+    DIRECTION_MAP,
+    TRIGGER_DEADZONE
 } from './config.js';
 import { initializeSettings, appSettings } from './settings.js';
 
@@ -227,12 +228,19 @@ function getDpadVector(gamepadIndex, state) {
     if (mapping.DPAD_ON_AXES) {
         const dpadAxis = state.axes[mapping.DPAD_AXIS_INDEX];
         // This axis behaves like a hat switch. Values are discrete.
-        // -1.0 is up, and it goes clockwise. 0.14 is up-right, etc.
-        // This is a simplified check for cardinal directions.
-        if (dpadAxis === -1.0 || dpadAxis === -0.7142857314355373 || dpadAxis === 1.0) return { dx: 0, dy: -1 }; // Up
-        if (dpadAxis === -0.4285714030265808) return { dx: 1, dy: 0 }; // Right
-        if (dpadAxis === 0.14285719394683838) return { dx: 0, dy: 1 }; // Down
-        if (dpadAxis === 0.7142857314355373) return { dx: -1, dy: 0 }; // Left
+        // Values are often around -1.0 (Up), -0.714 (Up-Right), -0.428 (Right), etc.
+        // Using ranges is more robust than checking for exact, magic floating point values.
+        const isInRange = (val, target) => Math.abs(val - target) < 0.1;
+
+        if (isInRange(dpadAxis, -1.0)) return { dx: 0, dy: -1 }; // Up
+        if (isInRange(dpadAxis, -0.714)) return { dx: 1, dy: -1 }; // Up-Right
+        if (isInRange(dpadAxis, -0.428)) return { dx: 1, dy: 0 }; // Right
+        if (isInRange(dpadAxis, -0.142)) return { dx: 1, dy: 1 }; // Down-Right
+        if (isInRange(dpadAxis, 0.142)) return { dx: 0, dy: 1 }; // Down
+        if (isInRange(dpadAxis, 0.428)) return { dx: -1, dy: 1 }; // Down-Left
+        if (isInRange(dpadAxis, 0.714)) return { dx: -1, dy: 0 }; // Left
+        if (isInRange(dpadAxis, 1.0)) return { dx: -1, dy: -1 }; // Up-Left
+
         return { dx: 0, dy: 0 };
     } else {
         // Standard button-based D-pad
@@ -366,7 +374,7 @@ function update() {
                 // as `pressed` can have a high activation threshold.
                 const buttonName = mapping.BUTTON_MAP[i];
                 if (buttonName === 'LT' || buttonName === 'RT') {
-                    return b.value > 0.1; // Use a small deadzone to prevent mis-timed conjunctions
+                    return b.value > TRIGGER_DEADZONE;
                 }
                 // For all other buttons, the `pressed` property is fine.
                 return b.pressed;
@@ -414,8 +422,9 @@ function update() {
         if (!hasNewButtonPress) {
             for (let i = 0; i < currentState.buttons.length; i++) {
                 // We only care about non-directional buttons for this logic
+                // This is safer than a hardcoded list of D-pad names
                 const buttonName = mapping.BUTTON_MAP[i];
-                if (buttonName && !['Up', 'Down', 'Left', 'Right'].includes(buttonName)) {
+                if (buttonName && !DIRECTIONAL_INPUTS.has(buttonName)) {
                     if (!currentState.buttons[i] && prevState.buttons[i]) {
                         hasNewButtonRelease = true;
                         break;
@@ -433,7 +442,7 @@ function update() {
             for (let i = 0; i < currentState.buttons.length; i++) {
                 if (currentState.buttons[i] && !prevState.buttons[i]) { // Check for a NEW press
                     const buttonName = mapping.BUTTON_MAP[i];
-                    if (buttonName && !['Up', 'Down', 'Left', 'Right'].includes(buttonName)) {
+                    if (buttonName && ICONS[buttonName] && !DIRECTIONAL_INPUTS.has(buttonName)) {
                         newlyPressedButtons.push(buttonName);
                     }
                 }

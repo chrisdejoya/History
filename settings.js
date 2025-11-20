@@ -1,4 +1,4 @@
-import { BUTTON_DEFAULTS } from './config.js';
+import { BUTTON_DEFAULTS, RGB_SCROLL_STEP } from './config.js';
 import { populateSettingsPanel, updateIconsFromSettings, generateButtonIconSVG } from './ui.js';
 import { hexToRgb, rgbToHex } from './colors.js';
 
@@ -67,9 +67,9 @@ export function initializeSettings(flushInputBuffer) {
             let value = parseInt(input.value, 10);
 
             if (e.deltaY < 0) { // Scrolling up
-                value = Math.min(255, value + 10);
+                value = Math.min(255, value + RGB_SCROLL_STEP);
             } else { // Scrolling down
-                value = Math.max(0, value - 10);
+                value = Math.max(0, value - RGB_SCROLL_STEP);
             }
             input.value = value;
 

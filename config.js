@@ -13,6 +13,10 @@ export const CONJUNCTION_WINDOW_MS = 50; // How long to wait for subsequent inpu
 export const DASH_WINDOW_MS = 150; // Max time in ms between taps for a dash
 export const MOTION_WINDOW_MS = 400; // Max time for a motion
 export const MAX_DIRECTION_HISTORY = 8; // We need a longer history for motions
+export const TRIGGER_DEADZONE = 0.5; // Analog trigger press threshold
+export const RGB_SCROLL_STEP = 10; // How much to inc/decrement RGB values when scrolling
+
+
 
 // --- Mappings ---
 
@@ -124,4 +128,18 @@ export const MOTION_SEQUENCES = {
 export const DIRECTIONAL_INPUTS = new Set(
     Object.values(DIRECTION_MAP).map(d => d.sym).concat(Object.values(DASH_MAP), Object.values(MOTION_MAP).map(m => m.sym))
 );
+
+// --- UI Generation Constants ---
+export const SVG_DEFAULTS = {
+    VIEW_BOX: '0 0 32 32',
+    CIRCLE_CX: 16,
+    CIRCLE_CY: 16,
+    CIRCLE_R: 14,
+    FONT_FAMILY: `'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', sans-serif`,
+    FONT_SIZE_SHORT: 20,
+    FONT_SIZE_LONG: 16,
+    TEXT_X: '50%',
+    TEXT_Y: '51%' // Slight vertical offset for better centering
+};
+
 DIRECTIONAL_INPUTS.add('N'); // Explicitly add 'N' as a directional input

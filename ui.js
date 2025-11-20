@@ -1,10 +1,10 @@
-import { ICONS } from './config.js';
+import { ICONS, SVG_DEFAULTS } from './config.js';
 import { hexToRgb, rgbToHex } from './colors.js';
 
 export function generateButtonIconSVG(label, color, textColor) {
-    const fontSize = label.length > 1 ? 16 : 20;
-    const font = `'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', sans-serif`;
-    return `<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="${color}"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-family="${font}" font-size="${fontSize}" font-weight="bold" fill="${textColor}">${label}</text></svg>`;
+    const fontSize = label.length > 1 ? SVG_DEFAULTS.FONT_SIZE_LONG : SVG_DEFAULTS.FONT_SIZE_SHORT;
+    const font = SVG_DEFAULTS.FONT_FAMILY;
+    return `<svg viewBox="${SVG_DEFAULTS.VIEW_BOX}"><circle cx="${SVG_DEFAULTS.CIRCLE_CX}" cy="${SVG_DEFAULTS.CIRCLE_CY}" r="${SVG_DEFAULTS.CIRCLE_R}" fill="${color}"/><text x="${SVG_DEFAULTS.TEXT_X}" y="${SVG_DEFAULTS.TEXT_Y}" dominant-baseline="middle" text-anchor="middle" font-family="${font}" font-size="${fontSize}" font-weight="bold" fill="${textColor}">${label}</text></svg>`;
 }
 
 export function updateIconsFromSettings(buttonSettings) {
