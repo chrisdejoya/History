@@ -1,0 +1,96 @@
+/* General styling for OBS overlay */
+body {
+    background-color: rgba(0, 0, 0, 0); /* Transparent background */
+    color: #EFEFEF; /* Off-white text */
+    font-family: 'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 24;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Hide scrollbars */
+}
+
+/* Container for the input history */
+#input-container {
+    position: fixed;
+    top: 25%;
+    left: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column-reverse; /* Display newest on top */
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Styling for each input item */
+.input-item {
+    animation: fadeIn 0.15s ease-in-out;/* Apply the fade-in animation */
+    width: 100%; /* Take up full width */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between circles and pluses */
+    padding: 6px /* A little space around the content */
+}
+
+.input-glyph {
+    flex: none; /* Don't grow/shrink */
+    background-color: rgba(0, 0, 0, 1.0);
+    border-radius: 50%; /* Make it a circle */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000
+}
+
+.input-separator {
+    font-family: 'Swiss 721 Bold Extended BT', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    flex: none; /* Don't grow/shrink */
+    color: #FFF; /* White plus sign */
+    font-size: 32px;
+    font-weight: 900; /* Make the plus sign itself thicker */
+    /* Create a thicker, more solid outline */
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -1px 0 0 #000, 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000;
+}
+
+.input-item svg {
+    width: 24px;
+    height: 24px;
+    fill: #EFEFEF;
+}
+
+/* Special case for dash chevrons to make them look good in a circle */
+.input-glyph svg[viewBox="0 0 32 32"] {
+    width: 28px;
+    height: 28px;
+}
+
+/* Status message for when no gamepad is connected */
+#status {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Animation for input items */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to { /* Stay fully visible */
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@font-face {
+    font-family: 'Swiss 721 Bold Extended BT';
+    src: url('https://raw.githubusercontent.com/chrisdejoya/Trailpad/main/fonts/Swiss%20721%20Bold%20Extended%20BT%20V2.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
