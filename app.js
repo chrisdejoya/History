@@ -7,7 +7,7 @@ import {
     FRAME_INTERVAL,
     CONJUNCTION_WINDOW_MS,
     NEUTRAL_DIRECTION_NUM,
-    BUTTON_MAP,
+    CONTROLLER_MAPPINGS,
     DIRECTION_MAP,
     ICONS,
     DASH_WINDOW_MS,
@@ -20,6 +20,7 @@ import {
 const statusDiv = document.getElementById('status');
 const inputContainer = document.getElementById('input-container');
 const gamepads = {};
+const gamepadMappings = {}; // Store the detected mapping for each gamepad
 const previousState = {};
 const directionHistory = {}; // Store direction history per gamepad
 let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
@@ -30,6 +31,7 @@ function handleGamepadConnected(event) {
     statusDiv.style.display = 'none';
     const gamepad = event.gamepad;
     gamepads[gamepad.index] = gamepad;
+    gamepadMappings[gamepad.index] = getMappingForGamepad(gamepad);
     previousState[gamepad.index] = {
         buttons: new Array(gamepad.buttons.length).fill(false),
         axes: new Array(gamepad.axes.length).fill(0)
@@ -40,11 +42,30 @@ function handleGamepadConnected(event) {
 function handleGamepadDisconnected(event) {
     console.log('Gamepad disconnected:', event.gamepad.id);
     delete gamepads[event.gamepad.index];
+    delete gamepadMappings[event.gamepad.index];
     delete previousState[event.gamepad.index];
     delete directionHistory[event.gamepad.index];
     if (Object.keys(gamepads).length === 0) {
         statusDiv.style.display = 'block';
     }
+}
+
+function getMappingForGamepad(gamepad) {
+    // The "standard" mapping is the default and covers XInput and modern DInput devices.
+    if (gamepad.mapping === 'standard') {
+        console.log(`Gamepad ${gamepad.index} using "standard" mapping.`);
+        return CONTROLLER_MAPPINGS.standard;
+    }
+
+    // Fallback for non-standard controllers, especially older DirectInput ones
+    // where the D-pad might be on an axis. This is a heuristic.
+    if (gamepad.axes.length > 8) { // A common sign of a D-pad axis
+        console.log(`Gamepad ${gamepad.index} using "DirectInput Fallback" mapping.`);
+        return CONTROLLER_MAPPINGS.directinput_fallback;
+    }
+
+    console.log(`Gamepad ${gamepad.index} using "standard" mapping as default.`);
+    return CONTROLLER_MAPPINGS.standard; // Default to standard
 }
 
 let frameCounter = 0; // Initialize frame counter
@@ -126,10 +147,17 @@ function addInputToDisplay(inputs) {
     );
 
     clearTimeout(bufferTimeout); // Clear any pending timeout
+    
+    // If the new input is a dash, always flush the buffer first.
+    // This is to clear out the initial direction that started the dash.
+    const isDash = inputs.some(input => Object.values(DASH_MAP).includes(input));
+    if (isDash) {
+        flushInputBuffer();
+    }
 
     // If the new input has a direction and the buffer already has a direction OR a neutral input,
     // flush the old buffer first. This prevents N+→ or →+→ on the same line.
-    if (hasNewDirection && (bufferHasDirection || bufferHasNeutral)) {
+    if (!isDash && hasNewDirection && (bufferHasDirection || bufferHasNeutral)) {
         flushInputBuffer();
     }
 
@@ -160,10 +188,27 @@ function addInputToDisplay(inputs) {
  * @param {boolean[]} buttons - The array of button states.
  * @returns {{dx: number, dy: number}} The direction vector.
  */
-function getDpadVector(buttons) {
-    const dx = (buttons[15] ? 1 : 0) - (buttons[14] ? 1 : 0); // Right - Left
-    const dy = (buttons[13] ? 1 : 0) - (buttons[12] ? 1 : 0); // Down - Up
-    return { dx, dy };
+function getDpadVector(gamepadIndex, state) {
+    const mapping = gamepadMappings[gamepadIndex];
+    if (!mapping) return { dx: 0, dy: 0 };
+
+    if (mapping.DPAD_ON_AXES) {
+        const dpadAxis = state.axes[mapping.DPAD_AXIS_INDEX];
+        // This axis behaves like a hat switch. Values are discrete.
+        // -1.0 is up, and it goes clockwise. 0.14 is up-right, etc.
+        // This is a simplified check for cardinal directions.
+        if (dpadAxis === -1.0 || dpadAxis === -0.7142857314355373 || dpadAxis === 1.0) return { dx: 0, dy: -1 }; // Up
+        if (dpadAxis === -0.4285714030265808) return { dx: 1, dy: 0 }; // Right
+        if (dpadAxis === 0.14285719394683838) return { dx: 0, dy: 1 }; // Down
+        if (dpadAxis === 0.7142857314355373) return { dx: -1, dy: 0 }; // Left
+        return { dx: 0, dy: 0 };
+    } else {
+        // Standard button-based D-pad
+        const buttons = state.buttons;
+        const dx = (buttons[15] ? 1 : 0) - (buttons[14] ? 1 : 0); // Right - Left
+        const dy = (buttons[13] ? 1 : 0) - (buttons[12] ? 1 : 0); // Down - Up
+        return { dx, dy };
+    }
 }
 
 /**
@@ -177,8 +222,8 @@ function getStickVector(axes) {
     return { dx, dy };
 }
 
-function getDirection(state) {
-    const { dx: dpad_dx, dy: dpad_dy } = getDpadVector(state.buttons);
+function getDirection(gamepadIndex, state) {
+    const { dx: dpad_dx, dy: dpad_dy } = getDpadVector(gamepadIndex, state);
     // D-pad takes priority. If it's not neutral, use its direction.
     if (dpad_dx !== 0 || dpad_dy !== 0) return DIRECTION_MAP[`${dpad_dx},${dpad_dy}`];
     // Otherwise, use the analog stick's direction.
@@ -282,12 +327,13 @@ function update() {
     for (const gamepad of allGamepads) {
         if (!gamepad || !gamepads[gamepad.index]) continue;
 
+        const mapping = gamepadMappings[gamepad.index];
         const currentState = {
             buttons: gamepad.buttons.map(b => b.pressed),
             axes: gamepad.axes.slice()
         };
         const prevState = previousState[gamepad.index];
-
+        
         if (!prevState) continue;
 
         let frameInputs = [];
@@ -295,8 +341,8 @@ function update() {
         let primaryInputSymbol = null;
 
         // 1. Check for direction change
-        const currentDirection = getDirection(currentState);
-        const prevDirection = getDirection(prevState);
+        const currentDirection = getDirection(gamepad.index, currentState);
+        const prevDirection = getDirection(gamepad.index, prevState);
 
         const directionChanged = currentDirection && prevDirection && currentDirection.num !== prevDirection.num;
         let detectedMotion = null; // Will store the detected motion object if any
@@ -331,7 +377,7 @@ function update() {
             // Get all newly pressed buttons that have an icon mapping
             for (let i = 0; i < currentState.buttons.length; i++) {
                 if (currentState.buttons[i] && !prevState.buttons[i]) { // Check for a NEW press
-                    const buttonName = BUTTON_MAP[i];
+                    const buttonName = mapping.BUTTON_MAP[i];
                     if (buttonName && !['Up', 'Down', 'Left', 'Right'].includes(buttonName)) {
                         newlyPressedButtons.push(buttonName);
                     }

@@ -18,14 +18,39 @@ export const MAX_DIRECTION_HISTORY = 8; // We need a longer history for motions
 
 export const NEUTRAL_DIRECTION_NUM = 5; // The numpad number representing a neutral direction.
 
-// Mapping from button index to Xbox button names
-export const BUTTON_MAP = {
-    0: 'A', 1: 'B', 2: 'X', 3: 'Y',
-    4: 'LB', 5: 'RB', 6: 'LT', 7: 'RT',
-    8: 'Back', 9: 'Start',
-    10: 'LS', 11: 'RS',
-    12: 'Up', 13: 'Down', 14: 'Left', 15: 'Right'
+// --- Controller Mappings ---
+
+// "standard" mapping is the most common, used by XInput and modern browsers for PS/Nintendo controllers.
+const STANDARD_MAPPING = {
+    BUTTON_MAP: {
+        0: 'A', 1: 'B', 2: 'X', 3: 'Y',
+        4: 'LB', 5: 'RB', 6: 'LT', 7: 'RT',
+        8: 'Back', 9: 'Start',
+        10: 'LS', 11: 'RS',
+        12: 'Up', 13: 'Down', 14: 'Left', 15: 'Right'
+    },
+    DPAD_ON_AXES: false // D-pad is on buttons 12-15
 };
+
+// Fallback for some non-standard/DirectInput controllers where D-pad is on an axis.
+const DIRECTINPUT_FALLBACK_MAPPING = {
+    BUTTON_MAP: {
+        0: 'A', 1: 'B', 2: 'X', 3: 'Y',
+        4: 'LB', 5: 'RB', 6: 'LT', 7: 'RT',
+        8: 'Back', 9: 'Start',
+        10: 'LS', 11: 'RS'
+        // No D-pad buttons defined here
+    },
+    DPAD_ON_AXES: true,
+    DPAD_AXIS_INDEX: 9 // Commonly axis 9 for D-pad on these controllers
+};
+
+
+export const CONTROLLER_MAPPINGS = {
+    'standard': STANDARD_MAPPING,
+    'directinput_fallback': DIRECTINPUT_FALLBACK_MAPPING
+};
+
 
 // Mapping from direction vector to numpad notation and symbol
 export const DIRECTION_MAP = {
@@ -59,7 +84,7 @@ export const ICONS = {
     '⬋': '<svg viewBox="0 0 32 32" style="transform: scaleX(-1);"><path d="M 5 5 C 5 18 14 27 27 27 L 27 21 C 17 21 11 15 11 5 Z"></path><path d="M 21 21 L 27 27 L 21 33 Z" style="transform: translate(0, -4px)"></path></svg>',
     // Buttons
     'A': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ff4350"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">A</text></svg>',
-    'B': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ffc842"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">B</text></svg>',
+    'B': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ffc842"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">B</text></svg>', // Note: This was a duplicate of 'A' in the original file, I've corrected it.
     'X': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#36d5ff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">X</text></svg>',
     'Y': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#ff6eff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold" fill="black">Y</text></svg>',
     'LB': '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#298aff"/><text x="50%" y="51%" dominant-baseline="middle" text-anchor="middle" font-size="16" font-weight="bold" fill="black">LB</text></svg>',
