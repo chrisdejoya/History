@@ -349,7 +349,7 @@ function update() {
                 // as `pressed` can have a high activation threshold.
                 const buttonName = mapping.BUTTON_MAP[i];
                 if (buttonName === 'LT' || buttonName === 'RT') {
-                    return b.value > 0;
+                    return b.value > 0.1; // Use a small deadzone to prevent mis-timed conjunctions
                 }
                 // For all other buttons, the `pressed` property is fine.
                 return b.pressed;
