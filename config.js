@@ -9,7 +9,7 @@ export const SIMULTANEOUS_INPUT_SEPARATOR = '+'; // Character to display between
 // --- Timing Configuration ---
 export const TARGET_FPS = 60; // The target frames per second for the game loop.
 export const FRAME_INTERVAL = 1000 / TARGET_FPS;
-export const CONJUNCTION_WINDOW_MS = 50; // How long to wait for subsequent inputs to group them together (in ms). ~3 frames.
+export const CONJUNCTION_WINDOW_MS = 60; // How long to wait for subsequent inputs to group them together (in ms). ~2 frames.
 export const DASH_WINDOW_MS = 150; // Max time in ms between taps for a dash
 export const MOTION_WINDOW_MS = 400; // Max time for a motion
 export const MAX_DIRECTION_HISTORY = 8; // We need a longer history for motions
