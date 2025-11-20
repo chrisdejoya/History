@@ -28,8 +28,8 @@ body {
     width: 100%; /* Take up full width */
     display: flex;
     align-items: center; /* Changed from baseline to center */
-    padding: 4px; /* Reduce padding */
-    gap: 12px; /* Add space between frame counter and input groups */
+    padding: 4px;
+    gap: 0px /* Add space between frame counter and input groups */
 }
 
 .input-glyph {
@@ -40,8 +40,7 @@ body {
     height: 40px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border: 1px solid #000;
+    justify-content: center;    
 }
 
 .frame-count {
