@@ -267,6 +267,7 @@ function update() {
 
         let frameInputs = [];
         let hasNewButtonPress = false;
+        let primaryInputSymbol = null;
 
         // 1. Check for direction change
         const currentDirection = getDirection(currentState);
@@ -312,7 +313,6 @@ function update() {
                 }
             }
 
-            let primaryInputSymbol = null;
             if (ENABLE_MOTION_INPUTS && detectedMotion) {
                 // The actual display depends on whether a button was pressed with it.
                 primaryInputSymbol = detectedMotion.sym;
@@ -338,6 +338,12 @@ function update() {
             
             frameInputs.push(...newlyPressedButtons);
         }
+
+        // If only buttons were pressed, and no direction was present, show the neutral indicator
+        if (hasNewButtonPress && !primaryInputSymbol && !directionChanged && !detectedDash && !detectedMotion) {
+            frameInputs.unshift('N'); // Add neutral indicator at the beginning
+        }
+
 
         // 4. Display inputs
         if (frameInputs.length > 0) {
