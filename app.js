@@ -150,6 +150,20 @@ function checkForDash(gamepadIndex, currentDirection) {
     return null; // No dash detected
 }
 
+/**
+ * Compares two arrays for equality.
+ * @param {Array} arr1 The first array.
+ * @param {Array} arr2 The second array.
+ * @returns {boolean} True if the arrays are equal, false otherwise.
+ */
+function areArraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+}
+
 function checkForMotion(gamepadIndex) {
     const history = directionHistory[gamepadIndex];
     if (history.length < 2) return null;
@@ -180,7 +194,7 @@ function checkForMotion(gamepadIndex) {
             // Check if the end of our input sequence matches the pattern
             if (uniqueSequence.length >= pattern.length) {
                 const sequenceSlice = uniqueSequence.slice(-pattern.length);
-                if (JSON.stringify(sequenceSlice) === JSON.stringify(pattern)) {
+                if (areArraysEqual(sequenceSlice, pattern)) {
                      // Motion found!
                     return {
                         name: motionName,
