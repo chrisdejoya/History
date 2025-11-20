@@ -43,14 +43,14 @@ export const DIRECTION_MAP = {
 // --- SVG Icons for 2XKO Style ---
 export const ICONS = {
     // Directions
-    '↑': '<svg viewBox="0 0 32 32"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '↗': '<svg viewBox="0 0 32 32" style="transform: rotate(45deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '→': '<svg viewBox="0 0 32 32" style="transform: rotate(90deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '↘': '<svg viewBox="0 0 32 32" style="transform: rotate(135deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '↓': '<svg viewBox="0 0 32 32" style="transform: rotate(180deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '↙': '<svg viewBox="0 0 32 32" style="transform: rotate(225deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '←': '<svg viewBox="0 0 32 32" style="transform: rotate(270deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
-    '↖': '<svg viewBox="0 0 32 32" style="transform: rotate(315deg);"><path d="M 16 4 L 4 16 L 10 16 L 10 28 L 22 28 L 22 16 L 28 16 Z"></path></svg>',
+    '↑': '<svg viewBox="0 0 32 32"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '↗': '<svg viewBox="0 0 32 32" style="transform: rotate(45deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '→': '<svg viewBox="0 0 32 32" style="transform: rotate(90deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '↘': '<svg viewBox="0 0 32 32" style="transform: rotate(135deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '↓': '<svg viewBox="0 0 32 32" style="transform: rotate(180deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '↙': '<svg viewBox="0 0 32 32" style="transform: rotate(225deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '←': '<svg viewBox="0 0 32 32" style="transform: rotate(270deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
+    '↖': '<svg viewBox="0 0 32 32" style="transform: rotate(315deg);"><path d="M16 6 L6 16 L11 16 L11 26 L21 26 L21 16 L26 16 Z"></path></svg>',
     '⭐': '<svg viewBox="0 0 32 32"><path d="M16 23l-8 5 2-9-7-6h9l3-8 3 8h9l-7 6 2 9z"></path></svg>',
     // Dashes & Motions
     '→→': '<svg viewBox="0 0 32 32"><path d="M8 8l8 8-8 8V8zm8 0l8 8-8 8V8z"></path></svg>',
