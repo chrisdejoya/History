@@ -27,7 +27,7 @@ body {
     animation: fadeIn 0.15s ease-in-out;/* Apply the fade-in animation */
     width: 100%; /* Take up full width */
     display: flex;
-    align-items: baseline;
+    align-items: center; /* Changed from baseline to center */
     padding: 4px; /* Reduce padding */
 }
 
@@ -41,6 +41,15 @@ body {
     align-items: center;
     justify-content: center;
     border: 1px solid #000
+}
+
+.frame-count {
+    margin-right: 8px;
+    min-width: 40px; /* Fixed width for up to 5 digits */
+    text-align: right;
+    font-size: 0.8em; /* Adjust font size for better alignment */
+    color: #FFF; /* Ensure visibility */
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Outline for legibility */
 }
 
 .input-separator {

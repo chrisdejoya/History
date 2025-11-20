@@ -44,12 +44,21 @@ function handleGamepadDisconnected(event) {
     }
 }
 
+let frameCounter = 0; // Initialize frame counter
 // --- Input Display ---
 function flushInputBuffer() {
     if (inputBuffer.length === 0) return;
 
     const inputElement = document.createElement('div');
     inputElement.className = 'input-item'; // This is the flex container with gap: 8px
+
+    // Store the frame count when this input line was created
+    inputElement.dataset.startFrame = frameCounter;
+    const frameCountElement = document.createElement('span');
+    frameCountElement.className = 'frame-count';
+    frameCountElement.textContent = `0`; // Start at 0
+    inputElement.prepend(frameCountElement);
+    inputElement.frameCountElementRef = frameCountElement; // Store reference for dynamic updates
 
     inputBuffer.forEach((item, index) => {
         // Create a sub-container for each 'item' (either single or simultaneous group)
@@ -93,12 +102,14 @@ function flushInputBuffer() {
             inputElement.appendChild(separator);
         }
     });
+
     inputContainer.prepend(inputElement);
     while (inputContainer.children.length > 20) {
         inputContainer.removeChild(inputContainer.lastChild);
     }
-    inputBuffer = []; // Clear the buffer
+    inputBuffer = []; // Clear the buffers
 }
+
 
 function addInputToDisplay(inputs) {
     const hasNewDirection = inputs.some(input => DIRECTIONAL_INPUTS.has(input));
@@ -134,7 +145,6 @@ function addInputToDisplay(inputs) {
         flushInputBuffer();
     }, CONJUNCTION_WINDOW_MS);
 }
-
 // --- Input Processing ---
 /**
  * Calculates the direction vector from D-pad inputs.
@@ -382,6 +392,16 @@ function gameLoop() {
   }
 
   requestAnimationFrame(gameLoop);
+    frameCounter++; // Increment the frame counter each frame
+
+  // Update the frame count for the most recent input line
+  if (inputContainer.firstChild && inputContainer.firstChild.dataset.startFrame && inputContainer.firstChild.frameCountElementRef) {
+      const mostRecentInput = inputContainer.firstChild;
+      const startFrame = parseInt(mostRecentInput.dataset.startFrame, 10);
+      const currentCount = frameCounter - startFrame;
+      mostRecentInput.frameCountElementRef.textContent = currentCount;
+  }
+
 }
 
 
