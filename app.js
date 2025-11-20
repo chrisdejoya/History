@@ -31,6 +31,10 @@ const directionHistory = {}; // Store direction history per gamepad
 let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
 let bufferTimeout = null; 
 let buttonSettings = {};
+let appSettings = {};
+const DEFAULT_APP_SETTINGS = {
+    showNeutrals: true
+};
 
 // --- Settings Panel Logic ---
 
@@ -62,6 +66,7 @@ function updateIconsFromSettings() {
 
 function saveSettings() {
     localStorage.setItem('buttonSettings', JSON.stringify(buttonSettings));
+    localStorage.setItem('appSettings', JSON.stringify(appSettings));
 }
 
 function populateSettingsPanel() {
@@ -69,6 +74,31 @@ function populateSettingsPanel() {
     const grid = document.createElement('div');
     grid.className = 'settings-grid';
 
+    // --- General Settings ---
+    const showNeutralsLabel = document.createElement('label');
+    showNeutralsLabel.textContent = 'Show Neutrals';
+    showNeutralsLabel.htmlFor = 'show-neutrals-toggle';
+
+    const showNeutralsToggle = document.createElement('input');
+    showNeutralsToggle.type = 'checkbox';
+    showNeutralsToggle.id = 'show-neutrals-toggle';
+    showNeutralsToggle.checked = appSettings.showNeutrals;
+    showNeutralsToggle.addEventListener('change', (e) => {
+        appSettings.showNeutrals = e.target.checked;
+        // Force a redraw
+        flushInputBuffer();
+
+        saveSettings();
+    });
+
+    const generalSettingsHeader = document.createElement('h3');
+    generalSettingsHeader.textContent = 'General';
+    generalSettingsHeader.style.gridColumn = '1 / -1'; // Span all columns
+    generalSettingsHeader.style.marginTop = '0px';
+
+    const showNeutralsContainer = document.createElement('div');
+    showNeutralsContainer.style.display = 'flex';
+    showNeutralsContainer.style.alignItems = 'center';
     // Create a styled header row
     grid.innerHTML = `
         <div class="grid-header">Preview</div>
@@ -77,6 +107,15 @@ function populateSettingsPanel() {
         <div class="grid-header">Color</div>
         <div class="grid-header">Font</div>
     `;
+
+    showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
+    settingsForm.appendChild(generalSettingsHeader);
+    settingsForm.appendChild(showNeutralsContainer);
+    settingsForm.appendChild(document.createElement('hr'));
+
+    const buttonSettingsHeader = document.createElement('h3');
+    buttonSettingsHeader.textContent = 'Buttons';
+    buttonSettingsHeader.style.gridColumn = '1 / -1';
 
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
@@ -126,6 +165,7 @@ function populateSettingsPanel() {
 
         grid.append(buttonPreview, nameLabel, labelInput, colorWrapper, textColorSelect);
     }
+    settingsForm.appendChild(buttonSettingsHeader);
     settingsForm.appendChild(grid);
 }
         
@@ -133,10 +173,16 @@ function loadSettings() {
     const savedSettings = localStorage.getItem('buttonSettings');
     if (savedSettings) {
         buttonSettings = JSON.parse(savedSettings);
-    } else {
-        // Deep copy defaults if no settings are saved
+    } else { // No saved button settings, so load defaults
         buttonSettings = JSON.parse(JSON.stringify(BUTTON_DEFAULTS));
         for (const key in buttonSettings) buttonSettings[key].textColor = 'black'; // Default
+    }
+    const savedAppSettings = localStorage.getItem('appSettings');
+    if (savedAppSettings) {
+        appSettings = { ...DEFAULT_APP_SETTINGS, ...JSON.parse(savedAppSettings) }; // Merge saved with defaults
+    } else {
+        // Use a fresh copy of the defaults if no app settings are saved
+        appSettings = JSON.parse(JSON.stringify(DEFAULT_APP_SETTINGS));
     }
     updateIconsFromSettings();
     populateSettingsPanel();
@@ -145,6 +191,7 @@ function loadSettings() {
 function resetSettings() {
     if (confirm('Are you sure you want to reset all button customizations to their defaults?')) {
         localStorage.removeItem('buttonSettings');
+        localStorage.removeItem('appSettings');
         loadSettings(); // Reload the default settings
     }
 }
@@ -534,7 +581,7 @@ function update() {
         }
 
         // If buttons were pressed without a new direction, dash, or motion, prepend Neutral.
-        if (hasNewButtonPress && !primaryInputSymbol) {
+        if (appSettings.showNeutrals && hasNewButtonPress && !primaryInputSymbol) {
              frameInputs.unshift('N');
         }
 
