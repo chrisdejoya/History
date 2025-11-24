@@ -14,6 +14,15 @@ export function updateIconsFromSettings(buttonSettings) {
     }
 }
 
+function createLabeledInput(labelText, inputElement) {
+    const container = document.createElement('div');
+    container.className = 'labeled-input';
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    container.append(label, inputElement);
+    return container;
+}
+
 export function populateSettingsPanel(settingsForm, appSettings, buttonSettings, flushInputBuffer, saveSettings) {
     settingsForm.innerHTML = ''; // Clear existing
     const grid = document.createElement('div');
@@ -113,12 +122,8 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
             numInput.dataset.comp = comp;
             numInput.className = 'rgb-input';
 
-            const rgbField = document.createElement('div');
-            rgbField.className = 'labeled-input';
-            const rgbLabel = document.createElement('label');
-            rgbLabel.textContent = comp.toUpperCase();
-            rgbField.append(rgbLabel, numInput);
-            rgbContainer.appendChild(rgbField);
+            const labeledInput = createLabeledInput(comp, numInput);
+            rgbContainer.appendChild(labeledInput);
         });
 
         const hexInput = document.createElement('input');
@@ -129,12 +134,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         hexInput.className = 'hex-input';
         hexInput.pattern = '^#([A-Fa-f0-9]{6})$';
 
-        const hexField = document.createElement('div');
-        hexField.className = 'labeled-input';
-        const hexLabel = document.createElement('label');
-        hexLabel.textContent = 'Hex';
-        hexField.append(hexLabel, hexInput);
-
+        const hexField = createLabeledInput('Hex', hexInput);
         const colorSwatch = document.createElement('div');
         colorSwatch.className = 'color-input-swatch';
         colorSwatch.style.backgroundColor = setting.color;
