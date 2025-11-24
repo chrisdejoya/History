@@ -29,15 +29,15 @@ body {
     display: flex;
     align-items: center; /* Changed from baseline to center */
     padding: 4px;
-    gap: 0px /* Add space between frame counter and input groups */
+    gap: 4px; /* Add space between frame counter and input groups */
 }
 
 .input-glyph {
     flex: none; /* Don't grow/shrink */
     background-color: rgba(0, 0, 0, 1.0);
     border-radius: 50%; /* Make it a circle */
-    width: 40px;
-    height: 40px;
+    width: var(--glyph-size, 40px);
+    height: var(--glyph-size, 40px);
     display: flex;
     align-items: center;
     justify-content: center;    
@@ -55,8 +55,8 @@ body {
 }
 
 .input-item svg {
-    width: 38px;
-    height: 38px;
+    width: calc(var(--glyph-size, 40px) * 0.95);
+    height: calc(var(--glyph-size, 40px) * 0.95);
     fill: #EFEFEF;    
     display: flex;
     align-items: center;
@@ -65,8 +65,8 @@ body {
 
 /* Special case for dash chevrons to make them look good in a circle */
 .input-glyph svg[viewBox="0 0 32 32"] {
-    width: 38px;
-    height: 38px
+    width: calc(var(--glyph-size, 40px) * 0.95);
+    height: calc(var(--glyph-size, 40px) * 0.95);
 }
 
 /* Status message for when no gamepad is connected */
@@ -148,6 +148,27 @@ body {
     text-align: center;
     text-transform: uppercase;
 }
+
+.general-settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.general-setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.general-setting-item label {
+    font-size: 0.8rem;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+
 .settings-toggle-container {
     display: flex;
     align-items: center;

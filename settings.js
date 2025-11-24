@@ -9,7 +9,9 @@ const resetButton = document.getElementById('reset-settings-btn');
 export let buttonSettings = {};
 export const DEFAULT_APP_SETTINGS = {
     showNeutrals: true,
-    targetFps: 60
+    targetFps: 60,
+    maxDisplayLines: 20,
+    glyphSize: 40
 };
 export let appSettings = {};
 
@@ -146,6 +148,18 @@ export function initializeSettings(flushInputBuffer) {
                 let value = parseInt(e.target.value, 10);
                 if (isNaN(value) || value < 0) value = 0;
                 appSettings[settingName] = value;
+                saveSettings();
+            } else if (settingName === 'maxDisplayLines') {
+                let value = parseInt(e.target.value, 10);
+                if (isNaN(value) || value < 1) value = 1; // Must show at least 1 line
+                appSettings[settingName] = value;
+                saveSettings();
+            } else if (settingName === 'glyphSize') {
+                let value = parseInt(e.target.value, 10);
+                if (isNaN(value) || value < 10) value = 10; // Set a minimum size
+                if (value > 100) value = 100; // Set a maximum size
+                appSettings[settingName] = value;
+                document.documentElement.style.setProperty('--glyph-size', `${value}px`);
                 saveSettings();
             }
         }

@@ -1,7 +1,6 @@
 import {
     AXIS_DEADZONE,
     ENABLE_MOTION_INPUTS,
-    MAX_DISPLAY_LINES,
     SIMULTANEOUS_INPUT_SEPARATOR,
     TARGET_FPS,
     CONJUNCTION_WINDOW_MS,
@@ -122,7 +121,7 @@ function flushInputBuffer() {
     });
 
     inputContainer.prepend(inputElement);
-    while (inputContainer.children.length > MAX_DISPLAY_LINES) {
+    while (inputContainer.children.length > appSettings.maxDisplayLines) {
         inputContainer.removeChild(inputContainer.lastChild);
     }
     lastFlushedBuffer = [...inputBuffer]; // Save a copy of what was just flushed
@@ -516,6 +515,7 @@ function gameLoop() {
 // Initial check for already connected gamepads
 window.addEventListener("load", () => {
     initializeSettings(flushInputBuffer);
+    document.documentElement.style.setProperty('--glyph-size', `${appSettings.glyphSize}px`);
 
     for (const gamepad of navigator.getGamepads()) {
         if (gamepad) {

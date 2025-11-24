@@ -3,7 +3,6 @@ export const AXIS_DEADZONE = 0.7;
 export const ENABLE_MOTION_INPUTS = false; // Set to true to recognize quarter-circles, etc.
 
 // --- Display Configuration ---
-export const MAX_DISPLAY_LINES = 20; // The maximum number of input lines to show on screen.
 export const SIMULTANEOUS_INPUT_SEPARATOR = '+'; // Character to display between simultaneous inputs.
 
 // --- Timing Configuration ---

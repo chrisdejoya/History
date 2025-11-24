@@ -40,16 +40,18 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     showNeutralsToggle.className = 'text-color-toggle'; // Reuse the existing toggle style
     showNeutralsToggle.addEventListener('change', (e) => {
         appSettings.showNeutrals = e.target.checked;
-        flushInputBuffer();
         saveSettings();
     });
 
     const generalSettingsHeader = document.createElement('h3');
     generalSettingsHeader.textContent = 'General';
 
-    const showNeutralsContainer = document.createElement('div');
-    showNeutralsContainer.className = 'settings-row';
-    showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
+    const generalSettingsContainer = document.createElement('div');
+    generalSettingsContainer.className = 'general-settings-container';
+
+    const showNeutralsItem = document.createElement('div');
+    showNeutralsItem.className = 'general-setting-item';
+    showNeutralsItem.append(showNeutralsLabel, showNeutralsToggle);
 
     // --- FPS Setting ---    
     const fpsLabel = document.createElement('label');
@@ -63,9 +65,43 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     fpsInput.value = appSettings.targetFps;
     fpsInput.dataset.appSetting = 'targetFps';
 
-    const fpsContainer = document.createElement('div');
-    fpsContainer.className = 'settings-row';
-    fpsContainer.append(fpsLabel, fpsInput);
+    const fpsItem = document.createElement('div');
+    fpsItem.className = 'general-setting-item';
+    fpsItem.append(fpsLabel, fpsInput);
+    
+    // --- Max Lines Setting ---
+    const maxLinesLabel = document.createElement('label');
+    maxLinesLabel.textContent = 'History Lines';
+    maxLinesLabel.htmlFor = 'max-lines-input';
+
+    const maxLinesInput = document.createElement('input');
+    maxLinesInput.type = 'number';
+    maxLinesInput.id = 'max-lines-input';
+    maxLinesInput.min = 1;
+    maxLinesInput.value = appSettings.maxDisplayLines;
+    maxLinesInput.dataset.appSetting = 'maxDisplayLines';
+
+    const maxLinesItem = document.createElement('div');
+    maxLinesItem.className = 'general-setting-item';
+    maxLinesItem.append(maxLinesLabel, maxLinesInput);
+
+    // --- Glyph Size Setting ---
+    const glyphSizeLabel = document.createElement('label');
+    glyphSizeLabel.textContent = 'Glyph Size';
+    glyphSizeLabel.htmlFor = 'glyph-size-input';
+
+    const glyphSizeInput = document.createElement('input');
+    glyphSizeInput.type = 'number';
+    glyphSizeInput.id = 'glyph-size-input';
+    glyphSizeInput.min = 10;
+    glyphSizeInput.max = 100;
+    glyphSizeInput.value = appSettings.glyphSize;
+    glyphSizeInput.dataset.appSetting = 'glyphSize';
+
+    const glyphSizeItem = document.createElement('div');
+    glyphSizeItem.className = 'general-setting-item';
+    glyphSizeItem.append(glyphSizeLabel, glyphSizeInput);
+
 
     // Create a styled header row
     grid.innerHTML = `
@@ -76,9 +112,9 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         <div class="grid-header">Font</div>
     `;
 
+    generalSettingsContainer.append(showNeutralsItem, fpsItem, maxLinesItem, glyphSizeItem);
     settingsForm.appendChild(generalSettingsHeader);
-    settingsForm.appendChild(showNeutralsContainer);
-    settingsForm.appendChild(fpsContainer);
+    settingsForm.appendChild(generalSettingsContainer);
     settingsForm.appendChild(document.createElement('hr'));
 
     for (const key in buttonSettings) {
