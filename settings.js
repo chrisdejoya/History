@@ -22,7 +22,13 @@ function loadSettings(flushInputBuffer) {
     const savedSettings = localStorage.getItem('buttonSettings');
     if (savedSettings) {
         buttonSettings = JSON.parse(savedSettings);
-    } else { // No saved button settings, so load defaults
+        // Ensure textColor property exists for older settings
+        for (const key in buttonSettings) {
+            if (!buttonSettings[key].hasOwnProperty('textColor')) {
+                buttonSettings[key].textColor = 'black';
+            }
+        }
+    } else { // No saved settings, so load defaults
         buttonSettings = JSON.parse(JSON.stringify(BUTTON_DEFAULTS));
         for (const key in buttonSettings) buttonSettings[key].textColor = 'black'; // Default
     }
