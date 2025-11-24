@@ -152,7 +152,7 @@ body {
 .general-settings-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px 20px;
     margin-bottom: 12px;
 }
 
@@ -193,7 +193,7 @@ body {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: auto 30px 0.8fr 1.2fr auto auto;
+    grid-template-columns: auto 25px 1fr auto auto;
     gap: 10px 12px;
     align-items: center;
     margin-bottom: 15px;
@@ -203,6 +203,7 @@ body {
     color: #999;
     font-size: 0.8em;
     text-transform: uppercase;
+    padding-bottom: 5px;
 }
 
 .settings-grid label {
@@ -248,7 +249,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    grid-column: 4 / span 2; /* Make this container span 2 grid columns */
+    grid-column: 4; /* This container is in the 4th grid column */
 }
 
 .rgb-input-group {
@@ -276,7 +277,7 @@ body {
 }
 
 .rgb-input {
-    width: 40px; /* Uniform width for RGB inputs */
+    width: 45px; /* Uniform width for RGB inputs */
     -moz-appearance: textfield; /* Firefox */
 }
 

@@ -119,13 +119,16 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     glyphSpacingItem.className = 'general-setting-item';
     glyphSpacingItem.append(glyphSpacingLabel, glyphSpacingInput);
 
+    const buttonSettingsHeader = document.createElement('h3');
+    buttonSettingsHeader.textContent = 'Button Customization';
+
 
     // Create a styled header row
     grid.innerHTML = `
         <div class="grid-header">Preview</div>
         <div class="grid-header">Btn</div>
-        <div class="grid-header" style="grid-column: 3;">Label</div>
-        <div class="grid-header" style="grid-column: 4 / span 2;">Color (R, G, B, Hex)</div>
+        <div class="grid-header">Label</div>
+        <div class="grid-header">Color (R, G, B, Hex)</div>
         <div class="grid-header">Font</div>
     `;
 
@@ -133,6 +136,8 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     settingsForm.appendChild(generalSettingsHeader);
     settingsForm.appendChild(generalSettingsContainer);
     settingsForm.appendChild(document.createElement('hr'));
+
+    settingsForm.appendChild(buttonSettingsHeader);
 
     for (const key in buttonSettings) {
         const setting = buttonSettings[key];
