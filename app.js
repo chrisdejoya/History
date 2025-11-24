@@ -451,7 +451,9 @@ class GamepadHandler {
                     // Direction changed to neutral, and no buttons were pressed in the same frame
                     primaryInputSymbol = 'N';
                 }
-            } else if (hasNewButtonRelease && !directionChanged && !hasNewButtonPress) {
+            } else if (hasNewButtonRelease && !directionChanged && !hasNewButtonPress && currentDirection.num === NEUTRAL_DIRECTION_NUM) {
+                // A button was released, no new buttons were pressed, the direction didn't change,
+                // AND the current direction is neutral. This is a true return to neutral.
                 if (appSettings.showNeutrals) {
                     primaryInputSymbol = 'N';
                 }
