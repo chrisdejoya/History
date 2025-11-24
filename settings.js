@@ -92,9 +92,9 @@ export function initializeSettings(flushInputBuffer) {
                 // Only update if the parsed value is different, prevents cursor jumping on blur
                 if (e.target.value !== String(val)) e.target.value = val;
 
-                const r = parseInt(setting.rgbInputRefs.r.value, 10);
-                const g = parseInt(setting.rgbInputRefs.g.value, 10);
-                const b = parseInt(setting.rgbInputRefs.b.value, 10);
+                const r = parseInt(setting.rgbInputRefs.r.querySelector('input').value, 10);
+                const g = parseInt(setting.rgbInputRefs.g.querySelector('input').value, 10);
+                const b = parseInt(setting.rgbInputRefs.b.querySelector('input').value, 10);
 
                 if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
                     const newHex = rgbToHex(r, g, b);
@@ -112,9 +112,9 @@ export function initializeSettings(flushInputBuffer) {
                     if (rgb) {
                         setting.color = hexValue;
                         // Update RGB inputs
-                        setting.rgbInputRefs.r.value = rgb.r;
-                        setting.rgbInputRefs.g.value = rgb.g;
-                        setting.rgbInputRefs.b.value = rgb.b;
+                        setting.rgbInputRefs.r.querySelector('input').value = rgb.r;
+                        setting.rgbInputRefs.g.querySelector('input').value = rgb.g;
+                        setting.rgbInputRefs.b.querySelector('input').value = rgb.b;
                         // Update swatch and preview
                         setting.swatchRef.style.backgroundColor = hexValue;
                         setting.previewRef.innerHTML = generateButtonIconSVG(setting.label, hexValue, setting.textColor);

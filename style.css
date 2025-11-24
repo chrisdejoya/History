@@ -137,15 +137,12 @@ body {
     text-transform: uppercase;
     font-size: 1em;
     color: #ccc;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
 }
 
-.settings-content hr {
-    border: 0;
-    border-top: 1px solid #444;
-    margin: 15px 0;
-    width: 100%;
-}
 .settings-content h2 {
+    font-size: 1.2em;
     margin-top: 0;
     margin-bottom: 10px;
     text-align: center;
@@ -154,16 +151,23 @@ body {
 .settings-toggle-container {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 8px;
     margin-bottom: 10px;
 }
 
-.settings-content div > label[for="show-neutrals-toggle"] {
-    margin-right: 8px;
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
-.settings-content div > input[type="checkbox"] {
-    margin: 0;
+
+.settings-content hr {
+    border: 0;
+    border-top: 1px solid #444;
+    margin: 20px 0;
+    width: 100%;
 }
 
 .settings-grid {
@@ -185,7 +189,8 @@ body {
     font-weight: 600; /* Semibold */
 }
 
-.settings-grid input[type="text"] {
+/* Unified style for all text and number inputs */
+.settings-content input[type="text"], .settings-content input[type="number"] {
     background-color: #111;
     border: 1px solid #555;
     color: #EFEFEF;
@@ -194,7 +199,8 @@ body {
     font-family: inherit;
     font-size: 16px;
     width: 100%;
-    box-sizing: border-box; /* Important for consistent sizing */
+    box-sizing: border-box;
+    height: 34px; /* Uniform height */
 }
 
 .settings-grid select {
@@ -217,33 +223,52 @@ body {
     margin-bottom: 20px;
 }
 
-.color-input-container {
+.color-controls-container {
     display: flex;
     align-items: center;
-    gap: 5px;
-    flex-wrap: wrap; /* Allow wrapping on very small screens */
+    gap: 8px;
+    grid-column: 4 / span 2; /* Make this container span 2 grid columns */
 }
 
 .rgb-input-group {
     display: flex;
-    gap: 3px;
+    gap: 4px;
+}
+
+.swatch-hex-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.labeled-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.labeled-input label {
+    font-size: 0.65rem;
+    color: #aaa;
+    padding-left: 4px;
+    margin-bottom: 2px;
 }
 
 .rgb-input {
-    width: 34px; /* Compact width for RGB values */
+    width: 40px; /* Uniform width for RGB inputs */
     -moz-appearance: textfield; /* Firefox */
 }
 
 /* Hide arrows on number inputs for a cleaner look */
-.rgb-input::-webkit-outer-spin-button,
-.rgb-input::-webkit-inner-spin-button {
+.settings-content input[type="number"]::-webkit-outer-spin-button,
+.settings-content input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
 .hex-input {
     font-family: monospace;
-    width: 65px;
+    width: 70px; /* Uniform width for Hex input */
     text-align: center;
 }
 
@@ -254,7 +279,6 @@ body {
     border: 1px solid #555;
     border-radius: 4px;
     flex-shrink: 0;
-    grid-column: 5; /* Explicitly place in the 5th column */
 }
 
 .button-preview {
@@ -309,7 +333,7 @@ body {
 }
 .settings-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start; /* Align button to the left */
     margin-top: 20px; /* Increase spacing */
 }
 

@@ -39,10 +39,10 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     generalSettingsHeader.textContent = 'General';
 
     const showNeutralsContainer = document.createElement('div');
-    showNeutralsContainer.className = 'settings-toggle-container';
+    showNeutralsContainer.className = 'settings-row';
     showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
 
-    // --- FPS Setting ---
+    // --- FPS Setting ---    
     const fpsLabel = document.createElement('label');
     fpsLabel.textContent = 'Target FPS (0 for uncapped)';
     fpsLabel.htmlFor = 'target-fps-input';
@@ -55,7 +55,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     fpsInput.dataset.appSetting = 'targetFps';
 
     const fpsContainer = document.createElement('div');
-    fpsContainer.className = 'settings-input-container'; // A generic container
+    fpsContainer.className = 'settings-row';
     fpsContainer.append(fpsLabel, fpsInput);
 
     // Create a styled header row
@@ -63,8 +63,8 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         <div class="grid-header">Preview</div>
         <div class="grid-header">Btn</div>
         <div class="grid-header" style="grid-column: 3;">Label</div>
-        <div class="grid-header" style="grid-column: 4;">Color</div>
-        <div class="grid-header" style="grid-column: 6;">Font</div>
+        <div class="grid-header" style="grid-column: 4 / span 2;">Color (R, G, B, Hex)</div>
+        <div class="grid-header">Font</div>
     `;
 
     settingsForm.appendChild(generalSettingsHeader);
@@ -92,10 +92,13 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         labelInput.dataset.prop = 'label';
 
         const colorContainer = document.createElement('div');
-        colorContainer.className = 'color-input-container';
+        colorContainer.className = 'color-controls-container';
 
         const rgbContainer = document.createElement('div');
         rgbContainer.className = 'rgb-input-group';
+
+        const swatchAndHexContainer = document.createElement('div');
+        swatchAndHexContainer.className = 'swatch-hex-container';
 
         const initialRgb = hexToRgb(setting.color) || { r: 0, g: 0, b: 0 };
 
@@ -109,7 +112,13 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
             numInput.dataset.prop = 'color-rgb';
             numInput.dataset.comp = comp;
             numInput.className = 'rgb-input';
-            rgbContainer.appendChild(numInput);
+
+            const rgbField = document.createElement('div');
+            rgbField.className = 'labeled-input';
+            const rgbLabel = document.createElement('label');
+            rgbLabel.textContent = comp.toUpperCase();
+            rgbField.append(rgbLabel, numInput);
+            rgbContainer.appendChild(rgbField);
         });
 
         const hexInput = document.createElement('input');
@@ -120,10 +129,16 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         hexInput.className = 'hex-input';
         hexInput.pattern = '^#([A-Fa-f0-9]{6})$';
 
+        const hexField = document.createElement('div');
+        hexField.className = 'labeled-input';
+        const hexLabel = document.createElement('label');
+        hexLabel.textContent = 'Hex';
+        hexField.append(hexLabel, hexInput);
+
         const colorSwatch = document.createElement('div');
         colorSwatch.className = 'color-input-swatch';
         colorSwatch.style.backgroundColor = setting.color;
-
+        
         // Store references for easy access
         setting.rgbInputRefs = {
             r: rgbContainer.children[0],
@@ -133,7 +148,8 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         setting.hexInputRef = hexInput;
         setting.swatchRef = colorSwatch;
 
-        colorContainer.append(rgbContainer, hexInput);
+        swatchAndHexContainer.append(colorSwatch, hexField);
+        colorContainer.append(rgbContainer, swatchAndHexContainer);
 
         const textColorToggle = document.createElement('input');
         textColorToggle.type = 'checkbox';
@@ -157,7 +173,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         setting.textColorToggleRef = textColorToggle; // Save ref for updates
         setting.textColorLabelRef = textColorLabel;
 
-        grid.append(buttonPreview, nameLabel, labelInput, colorContainer, colorSwatch, textColorContainer);
+        grid.append(buttonPreview, nameLabel, labelInput, colorContainer, textColorContainer);
     }
     settingsForm.appendChild(grid);
 }
