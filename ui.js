@@ -42,6 +42,22 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     showNeutralsContainer.className = 'settings-toggle-container';
     showNeutralsContainer.append(showNeutralsLabel, showNeutralsToggle);
 
+    // --- FPS Setting ---
+    const fpsLabel = document.createElement('label');
+    fpsLabel.textContent = 'Target FPS (0 for uncapped)';
+    fpsLabel.htmlFor = 'target-fps-input';
+
+    const fpsInput = document.createElement('input');
+    fpsInput.type = 'number';
+    fpsInput.id = 'target-fps-input';
+    fpsInput.min = 0;
+    fpsInput.value = appSettings.targetFps;
+    fpsInput.dataset.appSetting = 'targetFps';
+
+    const fpsContainer = document.createElement('div');
+    fpsContainer.className = 'settings-input-container'; // A generic container
+    fpsContainer.append(fpsLabel, fpsInput);
+
     // Create a styled header row
     grid.innerHTML = `
         <div class="grid-header">Preview</div>
@@ -53,6 +69,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
 
     settingsForm.appendChild(generalSettingsHeader);
     settingsForm.appendChild(showNeutralsContainer);
+    settingsForm.appendChild(fpsContainer);
     settingsForm.appendChild(document.createElement('hr'));
 
     for (const key in buttonSettings) {

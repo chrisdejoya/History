@@ -4,7 +4,6 @@ import {
     MAX_DISPLAY_LINES,
     SIMULTANEOUS_INPUT_SEPARATOR,
     TARGET_FPS,
-    FRAME_INTERVAL,
     CONJUNCTION_WINDOW_MS,
     NEUTRAL_DIRECTION_NUM,
     CONTROLLER_MAPPINGS,
@@ -487,15 +486,17 @@ class GamepadHandler {
 let lastFrameTime = 0;
 
 function gameLoop() {
-  const now = performance.now();
-  const elapsed = now - lastFrameTime;
+    const now = performance.now();
+    const elapsed = now - lastFrameTime;
 
-  if (elapsed > FRAME_INTERVAL) {
-    update();
-    lastFrameTime = now - (elapsed % FRAME_INTERVAL);
-  }
+    const currentFrameInterval = appSettings.targetFps > 0 ? 1000 / appSettings.targetFps : 0;
 
-  requestAnimationFrame(gameLoop);
+    if (currentFrameInterval === 0 || elapsed > currentFrameInterval) {
+        update();
+        lastFrameTime = (currentFrameInterval > 0) ? now - (elapsed % currentFrameInterval) : now;
+    }
+
+    requestAnimationFrame(gameLoop);
     frameCounter++; // Increment the frame counter each frame
 
   // Update the frame count for the most recent input line

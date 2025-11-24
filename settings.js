@@ -8,7 +8,8 @@ const resetButton = document.getElementById('reset-settings-btn');
 
 export let buttonSettings = {};
 export const DEFAULT_APP_SETTINGS = {
-    showNeutrals: true
+    showNeutrals: true,
+    targetFps: 60
 };
 export let appSettings = {};
 
@@ -132,6 +133,14 @@ export function initializeSettings(flushInputBuffer) {
                 if (prop === 'textColor' && setting.textColorLabelRef) {
                     setting.textColorLabelRef.textContent = value === 'white' ? 'White' : 'Black';
                 }
+            }
+        } else if (e.target.dataset.appSetting) {
+            const settingName = e.target.dataset.appSetting;
+            if (settingName === 'targetFps') {
+                let value = parseInt(e.target.value, 10);
+                if (isNaN(value) || value < 0) value = 0;
+                appSettings[settingName] = value;
+                saveSettings();
             }
         }
     });
