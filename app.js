@@ -353,113 +353,88 @@ class GamepadHandler {
         return null;
     }
 
+    _getHeldButtons(state) {
+        const held = new Set();
+        for (let i = 0; i < state.buttons.length; i++) {
+            if (state.buttons[i]) {
+                const buttonName = this.mapping.BUTTON_MAP[i];
+                if (buttonName && ICONS[buttonName] && !DIRECTIONAL_INPUTS.has(buttonName)) {
+                    held.add(buttonName);
+                }
+            }
+        }
+        return held;
+    }
+
+    _setsAreEqual(setA, setB) {
+        if (setA.size !== setB.size) return false;
+        for (const a of setA) {
+            if (!setB.has(a)) return false;
+        }
+        return true;
+    }
+
     processInputs(gamepad) {
         const currentState = this._getCurrentState(gamepad);
         const prevState = this.previousState;
-
         let frameInputs = [];
-        let hasNewButtonPress = false;
-        let primaryInputSymbol = null;
 
-        // 1. Check for direction change
+        // 1. Get current directional and button state
         const currentDirection = this._getDirection(currentState);
         const prevDirection = this._getDirection(prevState);
-
         const directionChanged = currentDirection && prevDirection && currentDirection.num !== prevDirection.num;
-        let detectedMotion = null; // Will store the detected motion object if any
+
+        const currentHeldButtons = this._getHeldButtons(currentState);
+        const prevHeldButtons = this._getHeldButtons(prevState);
+        const buttonsChanged = !this._setsAreEqual(currentHeldButtons, prevHeldButtons);
+
+        // 2. Check for special inputs like dashes and motions
+        let detectedMotion = null;
         let detectedDash = null;
 
-        // Update direction history and check for motions/dashes on each direction change
         if (directionChanged) {
-            // Prioritize checking for complex motions first
             if (ENABLE_MOTION_INPUTS) {
                 detectedMotion = this._checkForMotion();
             }
-            // Only check for a dash if a motion wasn't just completed
             if (!detectedMotion) {
                 detectedDash = this._checkForDash(currentDirection);
             }
         }
 
-        // 2. Check for new button presses and releases
-        for (let i = 0; i < currentState.buttons.length; i++) {
-            if (currentState.buttons[i] && !prevState.buttons[i]) {
-                hasNewButtonPress = true;
-            }
-        }
-
-        // Check for button releases, but only if no new buttons were pressed in the same frame.
-        // This prevents showing 'N' when rolling from one button to another.
-        let hasNewButtonRelease = false;
-        if (!hasNewButtonPress) {
-            for (let i = 0; i < currentState.buttons.length; i++) {
-                // We only care about non-directional buttons for this logic
-                // This is safer than a hardcoded list of D-pad names
-                const buttonName = this.mapping.BUTTON_MAP[i];
-                if (buttonName && !DIRECTIONAL_INPUTS.has(buttonName)) {
-                    if (!currentState.buttons[i] && prevState.buttons[i]) {
-                        hasNewButtonRelease = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        const hasNewInput = hasNewButtonPress || directionChanged || detectedDash || detectedMotion || hasNewButtonRelease;
-
-        // 3. Construct the full input string
-        if (hasNewInput) {
-            const newlyPressedButtons = [];
-            // Get all newly pressed buttons that have an icon mapping
-            for (let i = 0; i < currentState.buttons.length; i++) {
-                if (currentState.buttons[i] && !prevState.buttons[i]) { // Check for a NEW press
-                    const buttonName = this.mapping.BUTTON_MAP[i];
-                    if (buttonName && ICONS[buttonName] && !DIRECTIONAL_INPUTS.has(buttonName)) {
-                        newlyPressedButtons.push(buttonName);
-                    }
-                }
-            }
-
+        // 3. Decide if a new line should be created
+        if (directionChanged || buttonsChanged || detectedDash || detectedMotion) {
             if (ENABLE_MOTION_INPUTS && detectedMotion) {
-                // The actual display depends on whether a button was pressed with it.
-                primaryInputSymbol = detectedMotion.sym;
-                this.directionHistory = []; // Clear history to prevent re-triggering
+                frameInputs.push(detectedMotion.sym);
+                this.directionHistory = [];
             } else if (detectedDash) {
-                primaryInputSymbol = detectedDash;
+                frameInputs.push(detectedDash);
                 this.directionHistory = [];
             } else if (directionChanged) {
                 if (currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
-                    // If direction changed and it's not neutral, and no motion/dash was detected
-                    primaryInputSymbol = currentDirection.sym;
-                } else if (appSettings.showNeutrals && !hasNewButtonPress) {
-                    // Direction changed to neutral, and no buttons were pressed in the same frame
-                    primaryInputSymbol = 'N';
-                }
-            } else if (hasNewButtonRelease && !directionChanged && !hasNewButtonPress && currentDirection.num === NEUTRAL_DIRECTION_NUM) {
-                // A button was released, no new buttons were pressed, the direction didn't change,
-                // AND the current direction is neutral. This is a true return to neutral.
-                if (appSettings.showNeutrals) {
-                    primaryInputSymbol = 'N';
+                    frameInputs.push(currentDirection.sym);
                 }
             }
 
-            // If a button was pressed while a direction was held (but not changed),
-            // add the held direction to the output.
-            if (hasNewButtonPress && !primaryInputSymbol && currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
-                primaryInputSymbol = currentDirection.sym;
+            // If the direction didn't change but buttons did, add the current direction
+            if (!directionChanged && buttonsChanged && currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
+                frameInputs.push(currentDirection.sym);
             }
 
-            // Always add the directional input first, if it exists
-            if (primaryInputSymbol) {
-                frameInputs.push(primaryInputSymbol);
-            }
-            
-            frameInputs.push(...newlyPressedButtons);
-        }
+            // Add all currently held buttons
+            frameInputs.push(...Array.from(currentHeldButtons));
 
-        // If buttons were pressed without a new direction, dash, or motion, prepend Neutral.
-        if (appSettings.showNeutrals && hasNewButtonPress && !primaryInputSymbol) {
-             frameInputs.unshift('N');
+            // If the final result is empty, it means we returned to a true neutral state
+            // (no direction, no buttons held).
+            if (frameInputs.length === 0 && appSettings.showNeutrals) {
+                // This condition is met when buttons are released or direction becomes neutral,
+                // resulting in an empty state.
+                frameInputs.push('N');
+            }
+
+            // If only buttons are being held with no direction, prepend Neutral
+            if (currentHeldButtons.size > 0 && currentDirection.num === NEUTRAL_DIRECTION_NUM && !frameInputs.includes('N')) {
+                frameInputs.unshift('N');
+            }
         }
 
         // Save current state for the next frame
