@@ -28,8 +28,8 @@ body {
     width: 100%; /* Take up full width */
     display: flex;
     align-items: center; /* Changed from baseline to center */
-    padding: 4px;
-    gap: 4px; /* Add space between frame counter and input groups */
+    padding: 4px; 
+    gap: var(--glyph-spacing, 4px); /* Add space between frame counter and input groups */
 }
 
 .input-glyph {

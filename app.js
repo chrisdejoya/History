@@ -77,28 +77,21 @@ function flushInputBuffer() {
     inputElement.prepend(frameCountElement);
     inputElement.frameCountElementRef = frameCountElement; // Store reference for dynamic updates
 
-    inputBuffer.forEach((item, index) => {
+    inputBuffer.forEach((item) => {
         // Create a sub-container for each 'item' (either single or simultaneous group)
         const itemGroupContainer = document.createElement('span'); // Use span to allow inline display
         itemGroupContainer.style.display = 'flex'; // Make it a flex container itself
         itemGroupContainer.style.alignItems = 'center'; // Align glyphs and separators vertically
-        // No gap here, we'll manage spacing manually for simultaneous
+        itemGroupContainer.style.gap = 'var(--glyph-spacing, 4px)';
 
         // Handle single input (string)
         if (typeof item === 'string') {
-            const glyphWrapper = document.createElement('div');
-            glyphWrapper.className = 'input-glyph';
-            glyphWrapper.innerHTML = ICONS[item] || '';
-            itemGroupContainer.appendChild(glyphWrapper);
+            itemGroupContainer.innerHTML = `<div class="input-glyph">${ICONS[item] || ''}</div>`;
         }
         // Handle simultaneous inputs (array of strings)
         else if (Array.isArray(item)) {
             item.forEach((subItem, subIndex) => {
-                const glyphWrapper = document.createElement('div');
-                glyphWrapper.className = 'input-glyph';
-                glyphWrapper.innerHTML = ICONS[subItem] || '';
-                itemGroupContainer.appendChild(glyphWrapper);
-
+                itemGroupContainer.innerHTML += `<div class="input-glyph">${ICONS[subItem] || ''}</div>`;
                 // Add a tight separator between simultaneous inputs
                 if (subIndex < item.length - 1) {
                     const separator = document.createElement('span');
@@ -110,14 +103,6 @@ function flushInputBuffer() {
         }
 
         inputElement.appendChild(itemGroupContainer); // Append the sub-container to the main inputElement
-
-        // Add a wide separator between different itemGroupContainers (sequential groups)
-        if (index < inputBuffer.length - 1) {
-            const separator = document.createElement('span');
-            separator.className = 'input-separator'; // Existing class for styling
-            separator.textContent = SIMULTANEOUS_INPUT_SEPARATOR;
-            inputElement.appendChild(separator);
-        }
     });
 
     inputContainer.prepend(inputElement);
@@ -516,6 +501,7 @@ function gameLoop() {
 window.addEventListener("load", () => {
     initializeSettings(flushInputBuffer);
     document.documentElement.style.setProperty('--glyph-size', `${appSettings.glyphSize}px`);
+    document.documentElement.style.setProperty('--glyph-spacing', `${appSettings.glyphSpacing}px`);
 
     for (const gamepad of navigator.getGamepads()) {
         if (gamepad) {

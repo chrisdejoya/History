@@ -11,7 +11,8 @@ export const DEFAULT_APP_SETTINGS = {
     showNeutrals: true,
     targetFps: 60,
     maxDisplayLines: 20,
-    glyphSize: 40
+    glyphSize: 40,
+    glyphSpacing: 4
 };
 export let appSettings = {};
 
@@ -160,6 +161,12 @@ export function initializeSettings(flushInputBuffer) {
                 if (value > 100) value = 100; // Set a maximum size
                 appSettings[settingName] = value;
                 document.documentElement.style.setProperty('--glyph-size', `${value}px`);
+                saveSettings();
+            } else if (settingName === 'glyphSpacing') {
+                let value = parseInt(e.target.value, 10);
+                if (isNaN(value) || value < 0) value = 0;
+                appSettings[settingName] = value;
+                document.documentElement.style.setProperty('--glyph-spacing', `${value}px`);
                 saveSettings();
             }
         }

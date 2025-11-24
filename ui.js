@@ -101,6 +101,23 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     const glyphSizeItem = document.createElement('div');
     glyphSizeItem.className = 'general-setting-item';
     glyphSizeItem.append(glyphSizeLabel, glyphSizeInput);
+    
+    // --- Glyph Spacing Setting ---
+    const glyphSpacingLabel = document.createElement('label');
+    glyphSpacingLabel.textContent = 'Glyph Spacing';
+    glyphSpacingLabel.htmlFor = 'glyph-spacing-input';
+
+    const glyphSpacingInput = document.createElement('input');
+    glyphSpacingInput.type = 'number';
+    glyphSpacingInput.id = 'glyph-spacing-input';
+    glyphSpacingInput.min = 0;
+    glyphSpacingInput.max = 20;
+    glyphSpacingInput.value = appSettings.glyphSpacing;
+    glyphSpacingInput.dataset.appSetting = 'glyphSpacing';
+
+    const glyphSpacingItem = document.createElement('div');
+    glyphSpacingItem.className = 'general-setting-item';
+    glyphSpacingItem.append(glyphSpacingLabel, glyphSpacingInput);
 
 
     // Create a styled header row
@@ -112,7 +129,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         <div class="grid-header">Font</div>
     `;
 
-    generalSettingsContainer.append(showNeutralsItem, fpsItem, maxLinesItem, glyphSizeItem);
+    generalSettingsContainer.append(showNeutralsItem, fpsItem, maxLinesItem, glyphSizeItem, glyphSpacingItem);
     settingsForm.appendChild(generalSettingsHeader);
     settingsForm.appendChild(generalSettingsContainer);
     settingsForm.appendChild(document.createElement('hr'));
