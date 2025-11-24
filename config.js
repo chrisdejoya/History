@@ -7,11 +7,11 @@ export const SIMULTANEOUS_INPUT_SEPARATOR = '+'; // Character to display between
 
 // --- Timing Configuration ---
 export const TARGET_FPS = 60; // The target frames per second for the game loop.
-export const CONJUNCTION_WINDOW_MS = 33; // How long to wait for subsequent inputs to group them together (in ms). ~2 frames.
+export const CONJUNCTION_WINDOW_MS = 33; // Default time to wait for subsequent inputs to group them together (in ms). ~2 frames.
 export const DASH_WINDOW_MS = 150; // Max time in ms between taps for a dash
 export const MOTION_WINDOW_MS = 400; // Max time for a motion
 export const MAX_DIRECTION_HISTORY = 8; // We need a longer history for motions
-export const TRIGGER_DEADZONE = 0.5; // Analog trigger press threshold
+export const TRIGGER_DEADZONE = 0.5; // Default analog trigger press threshold (0.0 to 1.0)
 export const RGB_SCROLL_STEP = 10; // How much to inc/decrement RGB values when scrolling
 
 

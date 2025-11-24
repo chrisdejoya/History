@@ -119,6 +119,40 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
     glyphSpacingItem.className = 'general-setting-item';
     glyphSpacingItem.append(glyphSpacingLabel, glyphSpacingInput);
 
+    // --- Conjunction Window Setting ---
+    const conjunctionWindowLabel = document.createElement('label');
+    conjunctionWindowLabel.textContent = 'Input Buffer (ms)';
+    conjunctionWindowLabel.htmlFor = 'conjunction-window-input';
+
+    const conjunctionWindowInput = document.createElement('input');
+    conjunctionWindowInput.type = 'number';
+    conjunctionWindowInput.id = 'conjunction-window-input';
+    conjunctionWindowInput.min = 0;
+    conjunctionWindowInput.value = appSettings.conjunctionWindowMs;
+    conjunctionWindowInput.dataset.appSetting = 'conjunctionWindowMs';
+
+    const conjunctionWindowItem = document.createElement('div');
+    conjunctionWindowItem.className = 'general-setting-item';
+    conjunctionWindowItem.append(conjunctionWindowLabel, conjunctionWindowInput);
+
+    // --- Trigger Deadzone Setting ---
+    const triggerDeadzoneLabel = document.createElement('label');
+    triggerDeadzoneLabel.textContent = 'Trigger Deadzone';
+    triggerDeadzoneLabel.htmlFor = 'trigger-deadzone-input';
+
+    const triggerDeadzoneInput = document.createElement('input');
+    triggerDeadzoneInput.type = 'number';
+    triggerDeadzoneInput.id = 'trigger-deadzone-input';
+    triggerDeadzoneInput.min = 0;
+    triggerDeadzoneInput.max = 1;
+    triggerDeadzoneInput.step = 0.05;
+    triggerDeadzoneInput.value = appSettings.triggerDeadzone;
+    triggerDeadzoneInput.dataset.appSetting = 'triggerDeadzone';
+
+    const triggerDeadzoneItem = document.createElement('div');
+    triggerDeadzoneItem.className = 'general-setting-item';
+    triggerDeadzoneItem.append(triggerDeadzoneLabel, triggerDeadzoneInput);
+
     const buttonSettingsHeader = document.createElement('h3');
     buttonSettingsHeader.textContent = 'Button Customization';
 
@@ -132,7 +166,7 @@ export function populateSettingsPanel(settingsForm, appSettings, buttonSettings,
         <div class="grid-header">Font</div>
     `;
 
-    generalSettingsContainer.append(showNeutralsItem, fpsItem, maxLinesItem, glyphSizeItem, glyphSpacingItem);
+    generalSettingsContainer.append(showNeutralsItem, fpsItem, maxLinesItem, glyphSizeItem, glyphSpacingItem, conjunctionWindowItem, triggerDeadzoneItem);
     settingsForm.appendChild(generalSettingsHeader);
     settingsForm.appendChild(generalSettingsContainer);
     settingsForm.appendChild(document.createElement('hr'));

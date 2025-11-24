@@ -1,4 +1,4 @@
-import { BUTTON_DEFAULTS, RGB_SCROLL_STEP } from './config.js';
+import { BUTTON_DEFAULTS, RGB_SCROLL_STEP, CONJUNCTION_WINDOW_MS, TRIGGER_DEADZONE } from './config.js';
 import { populateSettingsPanel, updateIconsFromSettings, generateButtonIconSVG } from './ui.js';
 import { hexToRgb, rgbToHex } from './colors.js';
 
@@ -12,7 +12,9 @@ export const DEFAULT_APP_SETTINGS = {
     targetFps: 60,
     maxDisplayLines: 20,
     glyphSize: 40,
-    glyphSpacing: 4
+    glyphSpacing: 4,
+    conjunctionWindowMs: CONJUNCTION_WINDOW_MS,
+    triggerDeadzone: TRIGGER_DEADZONE
 };
 export let appSettings = {};
 
@@ -167,6 +169,17 @@ export function initializeSettings(flushInputBuffer) {
                 if (isNaN(value) || value < 0) value = 0;
                 appSettings[settingName] = value;
                 document.documentElement.style.setProperty('--glyph-spacing', `${value}px`);
+                saveSettings();
+            } else if (settingName === 'conjunctionWindowMs') {
+                let value = parseInt(e.target.value, 10);
+                if (isNaN(value) || value < 0) value = 0;
+                appSettings[settingName] = value;
+                saveSettings();
+            } else if (settingName === 'triggerDeadzone') {
+                let value = parseFloat(e.target.value);
+                if (isNaN(value)) value = 0.5;
+                value = Math.max(0.0, Math.min(1.0, value)); // Clamp between 0 and 1
+                appSettings[settingName] = value;
                 saveSettings();
             }
         }

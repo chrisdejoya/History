@@ -2,7 +2,6 @@ import {
     AXIS_DEADZONE,
     ENABLE_MOTION_INPUTS,
     SIMULTANEOUS_INPUT_SEPARATOR,
-    TARGET_FPS,
     CONJUNCTION_WINDOW_MS,
     NEUTRAL_DIRECTION_NUM,
     CONTROLLER_MAPPINGS,
@@ -13,7 +12,6 @@ import {
     MOTION_SEQUENCES,
     DIRECTIONAL_INPUTS,
     DIRECTION_MAP,
-    TRIGGER_DEADZONE
 } from './config.js';
 import { initializeSettings, appSettings } from './settings.js';
 
@@ -129,8 +127,8 @@ function addInputToDisplay(inputs) {
     // --- Smart Conjunction Logic ---
     // If the buffer is currently empty, but the last flush was very recent,
     // it means an input was just displayed. We can "retract" it to conjoin the new input.
-    const timeSinceLastFlush = performance.now() - lastFlushTime;
-    if (inputBuffer.length === 0 && timeSinceLastFlush < CONJUNCTION_WINDOW_MS) {
+    const timeSinceLastFlush = performance.now() - lastFlushTime;    
+    if (inputBuffer.length === 0 && timeSinceLastFlush < appSettings.conjunctionWindowMs) {
         const lastDisplayedItem = inputContainer.firstChild;
         if (lastDisplayedItem) {
             inputContainer.removeChild(lastDisplayedItem);
@@ -175,7 +173,7 @@ function addInputToDisplay(inputs) {
     // Set a new timeout to process the buffer
     bufferTimeout = setTimeout(() => {
         flushInputBuffer();
-    }, CONJUNCTION_WINDOW_MS);
+    }, appSettings.conjunctionWindowMs);
 }
 // --- Input Processing ---
 
@@ -278,7 +276,7 @@ class GamepadHandler {
             buttons: gamepad.buttons.map((b, i) => {
                 const buttonName = this.mapping.BUTTON_MAP[i];
                 if (buttonName === 'LT' || buttonName === 'RT') {
-                    return b.value > TRIGGER_DEADZONE;
+                    return b.value > appSettings.triggerDeadzone;
                 }
                 return b.pressed;
             }),
