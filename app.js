@@ -21,33 +21,21 @@ import { initializeSettings, appSettings } from './settings.js';
 
 const statusDiv = document.getElementById('status');
 const inputContainer = document.getElementById('input-container');
-const gamepads = {};
-const gamepadMappings = {}; // Store the detected mapping for each gamepad
-const previousState = {};
-const directionHistory = {}; // Store direction history per gamepad
 let lastFlushTime = 0; // Timestamp of the last time the buffer was flushed
 let inputBuffer = []; // Will store strings (single inputs) or string arrays (simultaneous inputs)
+let lastFlushedBuffer = []; // Stores the content of the last flushed buffer for conjunction
 let bufferTimeout = null; 
 
 function handleGamepadConnected(event) {
     console.log('Gamepad connected:', event.gamepad.id);
     statusDiv.style.display = 'none';
     const gamepad = event.gamepad;
-    gamepads[gamepad.index] = gamepad;
-    gamepadMappings[gamepad.index] = getMappingForGamepad(gamepad);
-    previousState[gamepad.index] = {
-        buttons: new Array(gamepad.buttons.length).fill(false),
-        axes: new Array(gamepad.axes.length).fill(0)
-    };
-    directionHistory[gamepad.index] = []; // Initialize direction history
+    gamepads[gamepad.index] = new GamepadHandler(gamepad);
 }
 
 function handleGamepadDisconnected(event) {
     console.log('Gamepad disconnected:', event.gamepad.id);
     delete gamepads[event.gamepad.index];
-    delete gamepadMappings[event.gamepad.index];
-    delete previousState[event.gamepad.index];
-    delete directionHistory[event.gamepad.index];
     if (Object.keys(gamepads).length === 0) {
         statusDiv.style.display = 'block';
     }
@@ -72,6 +60,10 @@ function getMappingForGamepad(gamepad) {
 }
 
 let frameCounter = 0; // Initialize frame counter
+
+// This object will now store GamepadHandler instances instead of raw gamepad objects.
+const gamepads = {};
+
 // --- Input Display ---
 function flushInputBuffer() {
     if (inputBuffer.length === 0) return;
@@ -134,6 +126,7 @@ function flushInputBuffer() {
     while (inputContainer.children.length > MAX_DISPLAY_LINES) {
         inputContainer.removeChild(inputContainer.lastChild);
     }
+    lastFlushedBuffer = [...inputBuffer]; // Save a copy of what was just flushed
     inputBuffer = []; // Clear the buffers
     lastFlushTime = performance.now(); // Record the time of this flush
 }
@@ -157,11 +150,8 @@ function addInputToDisplay(inputs) {
     if (inputBuffer.length === 0 && timeSinceLastFlush < CONJUNCTION_WINDOW_MS) {
         const lastDisplayedItem = inputContainer.firstChild;
         if (lastDisplayedItem) {
-            // This is a simplified retraction. A real implementation might need to parse the innerHTML
-            // to perfectly reconstruct the inputBuffer. For now, we'll just remove it and merge.
-            // This logic assumes the user wants to merge with the most recent line.
             inputContainer.removeChild(lastDisplayedItem);
-            // We can't perfectly reconstruct the old buffer, so this is an approximation.
+            inputBuffer = [...lastFlushedBuffer]; // Restore the buffer to conjoin with the new input
         }
     }
 
@@ -174,9 +164,12 @@ function addInputToDisplay(inputs) {
 
     clearTimeout(bufferTimeout); // Clear any pending timeout
 
-    // If the new input has a direction and the buffer already has a direction OR a neutral input,
-    // flush the old buffer first. This prevents N+→ or →+→ on the same line.
-    if (!isDash && hasNewDirection && (bufferHasDirection || bufferHasNeutral)) {
+    // If the new input has a direction and the buffer is not empty, flush the old buffer first.
+    // This ensures that any directional input always starts a new line.
+    if (!isDash && hasNewDirection && inputBuffer.length > 0) {
+        flushInputBuffer();
+    } else if (!isDash && hasNewDirection && (bufferHasDirection || bufferHasNeutral)) {
+        // This handles the case where a retracted buffer might contain a direction.
         flushInputBuffer();
     }
 
@@ -221,12 +214,11 @@ function sortInputs(inputs) {
  * @param {boolean[]} buttons - The array of button states.
  * @returns {{dx: number, dy: number}} The direction vector.
  */
-function getDpadVector(gamepadIndex, state) {
-    const mapping = gamepadMappings[gamepadIndex];
+function getDpadVector(mapping, state) {
     if (!mapping) return { dx: 0, dy: 0 };
 
     if (mapping.DPAD_ON_AXES) {
-        const dpadAxis = state.axes[mapping.DPAD_AXIS_INDEX];
+        const dpadAxis = state.axes[mapping.DPAD_AXIS_INDEX] ?? 0;
         // This axis behaves like a hat switch. Values are discrete.
         // Values are often around -1.0 (Up), -0.714 (Up-Right), -0.428 (Right), etc.
         // Using ranges is more robust than checking for exact, magic floating point values.
@@ -262,101 +254,6 @@ function getStickVector(axes) {
     return { dx, dy };
 }
 
-function getDirection(gamepadIndex, state) {
-    const { dx: dpad_dx, dy: dpad_dy } = getDpadVector(gamepadIndex, state);
-    // D-pad takes priority. If it's not neutral, use its direction.
-    if (dpad_dx !== 0 || dpad_dy !== 0) return DIRECTION_MAP[`${dpad_dx},${dpad_dy}`];
-    // Otherwise, use the analog stick's direction.
-    const { dx: stick_dx, dy: stick_dy } = getStickVector(state.axes);
-    return DIRECTION_MAP[`${stick_dx},${stick_dy}`];
-}
-
-function checkForDash(gamepadIndex, currentDirection) {
-    const history = directionHistory[gamepadIndex];
-    const now = performance.now();
-
-    // Add current direction and time to history
-    history.push({ dir: currentDirection, time: now });
-
-    // Keep history short
-    if (history.length > 3) {
-        history.shift();
-    }
-
-    // Check for dash pattern: DIR -> NEUTRAL -> DIR
-    if (history.length === 3) {
-        const [first, middle, last] = history;
-        const isDashPattern = last.dir.num === first.dir.num && // Same direction
-                              middle.dir.num === NEUTRAL_DIRECTION_NUM &&             // Neutral in the middle
-                              DASH_MAP[last.dir.num];             // It's a dashable direction (left/right)
-        const isWithinTime = (last.time - first.time) <= DASH_WINDOW_MS;
-
-        if (isDashPattern && isWithinTime) {
-            directionHistory[gamepadIndex] = []; // Clear history to prevent pre-input
-            return DASH_MAP[last.dir.num]; // Return dash symbol e.g., "→→"
-        }
-    }
-    return null; // No dash detected
-}
-
-/**
- * Compares two arrays for equality.
- * @param {Array} arr1 The first array.
- * @param {Array} arr2 The second array.
- * @returns {boolean} True if the arrays are equal, false otherwise.
- */
-function areArraysEqual(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    for (let i = 0; i < arr1.length; i++) {
-        if (arr1[i] !== arr2[i]) return false;
-    }
-    return true;
-}
-
-function checkForMotion(gamepadIndex) {
-    const history = directionHistory[gamepadIndex];
-    if (history.length < 2) return null;
-
-    const now = performance.now();
-
-    // Create a clean sequence of unique directions from recent history
-    const uniqueSequence = [];
-    // The motion window is implicitly handled by the direction history length now.
-    if (history.length < 2) return null;
-
-    // Create a sequence of unique numpad directions, e.g., [2, 2, 3, 6, 6] -> [2, 3, 6]
-    let lastNum = -1;
-    for(const item of history) {
-        if (item.dir.num !== lastNum && item.dir.num !== 5) { // Ignore neutral and duplicates
-            uniqueSequence.push(item.dir.num);
-            lastNum = item.dir.num;
-        }
-    }
-
-    if (uniqueSequence.length < 2) return null;
-
-    // Check this unique sequence against our defined motions
-    for (const motionName in MOTION_SEQUENCES) {
-        const patterns = MOTION_SEQUENCES[motionName];
-        for (const pattern of patterns) {
-            // Check if the end of our input sequence matches the pattern
-            if (uniqueSequence.length >= pattern.length) {
-                const sequenceSlice = uniqueSequence.slice(-pattern.length);
-                if (areArraysEqual(sequenceSlice, pattern)) {
-                     // Motion found!
-                    return {
-                        name: motionName,
-                        sym: MOTION_MAP[pattern.join('')]?.sym || motionName,
-                        pattern: pattern
-                    };
-                }
-            }
-        }
-    }
-
-    return null; // No motion detected
-}
-
 // --- Main Game Loop ---
 function update() {
     if (Object.keys(gamepads).length === 0) return;
@@ -365,33 +262,125 @@ function update() {
     const allGamepads = navigator.getGamepads();
 
     for (const gamepad of allGamepads) {
-        if (!gamepad || !gamepads[gamepad.index]) continue;
+        if (!gamepad) continue;
 
-        const mapping = gamepadMappings[gamepad.index];
-        const currentState = {
+        // If a gamepad is connected that we don't have a handler for, create one.
+        if (gamepad && !gamepads[gamepad.index]) {
+            handleGamepadConnected({ gamepad });
+        }
+
+        const handler = gamepads[gamepad.index];
+        if (handler) {
+            const frameInputs = handler.processInputs(gamepad);
+            if (frameInputs.length > 0) {
+                addInputToDisplay(sortInputs(frameInputs));
+            }
+        }
+    }
+}
+
+class GamepadHandler {
+    constructor(gamepad) {
+        this.gamepad = gamepad;
+        this.mapping = getMappingForGamepad(gamepad);
+        this.previousState = {
+            buttons: new Array(gamepad.buttons.length).fill(false),
+            axes: new Array(gamepad.axes.length).fill(0)
+        };
+        this.directionHistory = [];
+    }
+
+    _getCurrentState(gamepad) {
+        return {
             buttons: gamepad.buttons.map((b, i) => {
-                // For triggers (LT/RT), use their value for more sensitivity,
-                // as `pressed` can have a high activation threshold.
-                const buttonName = mapping.BUTTON_MAP[i];
+                const buttonName = this.mapping.BUTTON_MAP[i];
                 if (buttonName === 'LT' || buttonName === 'RT') {
                     return b.value > TRIGGER_DEADZONE;
                 }
-                // For all other buttons, the `pressed` property is fine.
                 return b.pressed;
             }),
             axes: gamepad.axes.slice()
         };
-        const prevState = previousState[gamepad.index];
-        
-        if (!prevState) continue;
+    }
+
+    _getDirection(state) {
+        const { dx: dpad_dx, dy: dpad_dy } = getDpadVector(this.mapping, state);
+        if (dpad_dx !== 0 || dpad_dy !== 0) return DIRECTION_MAP[`${dpad_dx},${dpad_dy}`];
+        const { dx: stick_dx, dy: stick_dy } = getStickVector(state.axes);
+        return DIRECTION_MAP[`${stick_dx},${stick_dy}`];
+    }
+
+    _checkForDash(currentDirection) {
+        const now = performance.now();
+        this.directionHistory.push({ dir: currentDirection, time: now });
+        if (this.directionHistory.length > 3) this.directionHistory.shift();
+
+        if (this.directionHistory.length === 3) {
+            const [first, middle, last] = this.directionHistory;
+            const isDashPattern = last.dir.num === first.dir.num &&
+                                  middle.dir.num === NEUTRAL_DIRECTION_NUM &&
+                                  DASH_MAP[last.dir.num];
+            const isWithinTime = (last.time - first.time) <= DASH_WINDOW_MS;
+
+            if (isDashPattern && isWithinTime) {
+                this.directionHistory = [];
+                return DASH_MAP[last.dir.num];
+            }
+        }
+        return null;
+    }
+
+    _areArraysEqual(arr1, arr2) {
+        if (arr1.length !== arr2.length) return false;
+        for (let i = 0; i < arr1.length; i++) {
+            if (arr1[i] !== arr2[i]) return false;
+        }
+        return true;
+    }
+
+    _checkForMotion() {
+        if (this.directionHistory.length < 2) return null;
+
+        let uniqueSequence = [];
+        let lastNum = -1;
+        for (const item of this.directionHistory) {
+            if (item.dir.num !== lastNum && item.dir.num !== 5) {
+                uniqueSequence.push(item.dir.num);
+                lastNum = item.dir.num;
+            }
+        }
+
+        if (uniqueSequence.length < 2) return null;
+
+        for (const motionName in MOTION_SEQUENCES) {
+            const patterns = MOTION_SEQUENCES[motionName];
+            for (const pattern of patterns) {
+                if (uniqueSequence.length >= pattern.length) {
+                    const sequenceSlice = uniqueSequence.slice(-pattern.length);
+                    if (this._areArraysEqual(sequenceSlice, pattern)) {
+                        return {
+                            name: motionName,
+                            sym: MOTION_MAP[pattern.join('')]?.sym || motionName,
+                            pattern: pattern
+                        };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    processInputs(gamepad) {
+        const currentState = this._getCurrentState(gamepad);
+        const prevState = this.previousState;
 
         let frameInputs = [];
         let hasNewButtonPress = false;
         let primaryInputSymbol = null;
 
         // 1. Check for direction change
-        const currentDirection = getDirection(gamepad.index, currentState);
-        const prevDirection = getDirection(gamepad.index, prevState);
+        const currentDirection = this._getDirection(currentState);
+        const prevDirection = this._getDirection(prevState);
 
         const directionChanged = currentDirection && prevDirection && currentDirection.num !== prevDirection.num;
         let detectedMotion = null; // Will store the detected motion object if any
@@ -401,11 +390,11 @@ function update() {
         if (directionChanged) {
             // Prioritize checking for complex motions first
             if (ENABLE_MOTION_INPUTS) {
-                detectedMotion = checkForMotion(gamepad.index);
+                detectedMotion = this._checkForMotion();
             }
             // Only check for a dash if a motion wasn't just completed
             if (!detectedMotion) {
-                detectedDash = checkForDash(gamepad.index, currentDirection);
+                detectedDash = this._checkForDash(currentDirection);
             }
         }
 
@@ -423,7 +412,7 @@ function update() {
             for (let i = 0; i < currentState.buttons.length; i++) {
                 // We only care about non-directional buttons for this logic
                 // This is safer than a hardcoded list of D-pad names
-                const buttonName = mapping.BUTTON_MAP[i];
+                const buttonName = this.mapping.BUTTON_MAP[i];
                 if (buttonName && !DIRECTIONAL_INPUTS.has(buttonName)) {
                     if (!currentState.buttons[i] && prevState.buttons[i]) {
                         hasNewButtonRelease = true;
@@ -441,7 +430,7 @@ function update() {
             // Get all newly pressed buttons that have an icon mapping
             for (let i = 0; i < currentState.buttons.length; i++) {
                 if (currentState.buttons[i] && !prevState.buttons[i]) { // Check for a NEW press
-                    const buttonName = mapping.BUTTON_MAP[i];
+                    const buttonName = this.mapping.BUTTON_MAP[i];
                     if (buttonName && ICONS[buttonName] && !DIRECTIONAL_INPUTS.has(buttonName)) {
                         newlyPressedButtons.push(buttonName);
                     }
@@ -451,10 +440,10 @@ function update() {
             if (ENABLE_MOTION_INPUTS && detectedMotion) {
                 // The actual display depends on whether a button was pressed with it.
                 primaryInputSymbol = detectedMotion.sym;
-                directionHistory[gamepad.index] = []; // Clear history to prevent re-triggering
+                this.directionHistory = []; // Clear history to prevent re-triggering
             } else if (detectedDash) {
                 primaryInputSymbol = detectedDash;
-                directionHistory[gamepad.index] = [];
+                this.directionHistory = [];
             } else if (directionChanged) {
                 if (currentDirection.num !== NEUTRAL_DIRECTION_NUM) {
                     // If direction changed and it's not neutral, and no motion/dash was detected
@@ -488,17 +477,10 @@ function update() {
              frameInputs.unshift('N');
         }
 
+        // Save current state for the next frame
+        this.previousState = currentState;
 
-        // 4. Display inputs
-        if (frameInputs.length > 0) {
-            // Sort the inputs to prioritize directions and neutrals
-            frameInputs = sortInputs(frameInputs);
-
-            addInputToDisplay(frameInputs);
-        }
-
-        // 5. Save current state for the next frame
-        previousState[gamepad.index] = currentState;
+        return frameInputs;
     }
 }
 

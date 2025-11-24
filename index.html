@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@600&display=swap" rel="stylesheet" />
     <title>Input History</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Container for the input history display -->
-    <div id="input-container"></div>
+    <main>
+        <!-- Container for the input history display -->
+        <div id="input-container"></div>
 
-    <!-- Status message for when no gamepad is connected -->
-    <div id="status">        
-        <p>PRESS ANY BUTTON</p>
-    </div>
+        <!-- Status message for when no gamepad is connected -->
+        <div id="status" aria-live="polite">
+            <p>PRESS ANY BUTTON</p>
+        </div>
+    </main>
 
     <!-- Settings Panel (hidden by default) -->
-    <div id="settings-panel" class="hidden">
+    <section id="settings-panel" class="hidden" role="dialog" aria-labelledby="settings-title">
         <div class="settings-content">
-            <h2>SETTINGS</h2>
-            <div id="settings-form">
+            <h2 id="settings-title">SETTINGS</h2>
+            <form id="settings-form">
                 <!-- Settings will be dynamically generated here -->
-            </div>
+            </form>
              <div class="settings-footer">
+                <button id="close-settings-btn">Close</button>
                 <button id="reset-settings-btn">Reset to Defaults</button>
             </div>
         </div>
